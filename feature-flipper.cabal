@@ -26,8 +26,10 @@ library
   hs-source-dirs:
       src
   default-extensions: OverloadedStrings
+  ghc-options: -Wall -fwarn-unused-matches -fwarn-unused-binds -fwarn-unused-imports
   exposed-modules:
       Flipper
+      Flipper.Types
   other-modules:
       Paths_feature_flipper
   build-depends:

@@ -8,29 +8,9 @@ module Flipper
 
 import           Control.Monad       (void)
 import           Control.Monad.State (State, get, put)
-import           Data.Map.Strict     (Map (..))
-import qualified Data.Map.Strict     as M
-import           Data.Monoid
-import           Data.String         (IsString (..))
-import           Data.Text           (Text)
-import qualified Data.Text           as T
+import qualified Data.Map.Strict as M
 
-newtype Features = Features { unFeatures :: Map FeatureName Bool }
-    deriving (Show, Eq)
-
-
-instance Monoid Features where
-    mempty = Features mempty
-    mappend a b = Features (unFeatures a <> unFeatures b)
-
-
-newtype FeatureName = FeatureName { unFeatureName :: Text }
-    deriving (Show, Eq, Ord)
-
-
-instance IsString FeatureName where
-    fromString s = FeatureName (T.pack s)
-
+import Flipper.Types (Features(..), FeatureName(..), mkFeatures)
 
 flipFeature :: FeatureName -> State Features ()
 flipFeature fName = update fName flipIt'
@@ -54,10 +34,6 @@ enabled fName = do
 
 disable :: FeatureName -> State Features ()
 disable fName = update fName (\_ -> Just False)
-
-
-mkFeatures :: Map FeatureName Bool -> Features
-mkFeatures = Features
 
 
 update :: FeatureName -> (Maybe Bool -> Maybe Bool) -> State Features ()

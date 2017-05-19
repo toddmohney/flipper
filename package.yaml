@@ -10,10 +10,16 @@ extra-source-files:
 - README.md
 library:
   source-dirs: src
+  ghc-options:
+  - -Wall
+  - -fwarn-unused-matches
+  - -fwarn-unused-binds
+  - -fwarn-unused-imports
   default-extensions:
   - OverloadedStrings
   exposed-modules:
   - Flipper
+  - Flipper.Types
   dependencies:
   - base >=4.7 && <5
   - containers
