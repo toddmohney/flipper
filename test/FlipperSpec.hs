@@ -1,12 +1,12 @@
 module FlipperSpec (main, spec) where
 
-import Control.Monad.State (evalState)
-import Data.Map.Strict (Map(..))
-import qualified Data.Map.Strict as M
-import Data.Monoid
-import Test.Hspec
+import           Control.Monad.State (evalState)
+import           Data.Map.Strict     (Map (..))
+import qualified Data.Map.Strict     as M
+import           Data.Monoid
+import           Test.Hspec
 
-import Flipper
+import           Flipper
 
 main :: IO ()
 main = hspec spec

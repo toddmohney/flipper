@@ -5,14 +5,14 @@ module Flipper
     , mkFeatures
     ) where
 
-import Control.Monad (void)
-import Control.Monad.State (State, get, put)
-import Data.Map.Strict (Map(..))
-import qualified Data.Map.Strict as M
-import Data.Monoid
-import Data.String (IsString(..))
-import Data.Text (Text)
-import qualified Data.Text as T
+import           Control.Monad       (void)
+import           Control.Monad.State (State, get, put)
+import           Data.Map.Strict     (Map (..))
+import qualified Data.Map.Strict     as M
+import           Data.Monoid
+import           Data.String         (IsString (..))
+import           Data.Text           (Text)
+import qualified Data.Text           as T
 
 newtype Features = Features { unFeatures :: Map FeatureName Bool }
     deriving (Show, Eq)
