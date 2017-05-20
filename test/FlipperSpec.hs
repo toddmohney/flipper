@@ -5,6 +5,7 @@ import qualified Data.Map.Strict     as M
 import           Test.Hspec
 
 import           Flipper
+import           Flipper.Types
 
 main :: IO ()
 main = hspec spec
@@ -14,7 +15,7 @@ spec = do
     describe "enable" $ do
         it "enables a new feature key" $
             let
-                featureState = mempty
+                featureState = mempty :: Features
                 result = evalState (enable "NEW_FEATURE" >> enabled "NEW_FEATURE") featureState
             in
                 result `shouldBe` True
@@ -29,7 +30,7 @@ spec = do
     describe "disable" $ do
         it "disables a new feature key" $
             let
-                featureState = mempty
+                featureState = mempty :: Features
                 result = evalState (disable "NEW_FEATURE" >> enabled "NEW_FEATURE") featureState
             in
                 result `shouldBe` False
@@ -44,7 +45,7 @@ spec = do
     describe "flipFeature" $ do
         it "enables a new feature key" $
             let
-                featureState = mempty
+                featureState = mempty :: Features
                 result = evalState (flipFeature "NEW_FEATURE" >> enabled "NEW_FEATURE") featureState
             in
                 result `shouldBe` True
@@ -80,7 +81,7 @@ spec = do
 
         it "returns False when the feature key is not found" $
             let
-                featureState = mempty
+                featureState = mempty :: Features
                 result = evalState (enabled "NON_EXISTANT_FEATURE") featureState
             in
                 result `shouldBe` False
