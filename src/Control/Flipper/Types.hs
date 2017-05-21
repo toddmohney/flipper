@@ -5,7 +5,7 @@
 Module      : Flipper.Types
 Description : Datatype and Typeclass definitions
 -}
-module Flipper.Types
+module Control.Flipper.Types
     ( Features(..)
     , FeatureName(..)
     , HasFeatureFlags(..)

@@ -18,8 +18,8 @@ library:
   default-extensions:
   - OverloadedStrings
   exposed-modules:
-  - Flipper
-  - Flipper.Types
+  - Control.Flipper
+  - Control.Flipper.Types
   dependencies:
   - base >=4.7 && <5
   - containers
@@ -43,7 +43,7 @@ tests:
     - mtl
     - QuickCheck
     other-modules:
-    - FlipperSpec
+    - Control.FlipperSpec
 executables:
   environment-config:
       main: Main.hs

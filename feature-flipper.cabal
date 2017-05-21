@@ -28,8 +28,8 @@ library
   default-extensions: OverloadedStrings
   ghc-options: -Wall -fwarn-unused-matches -fwarn-unused-binds -fwarn-unused-imports
   exposed-modules:
-      Flipper
-      Flipper.Types
+      Control.Flipper
+      Control.Flipper.Types
   other-modules:
       Paths_feature_flipper
   build-depends:
@@ -66,6 +66,6 @@ test-suite feature-flipper-test
     , mtl
     , QuickCheck
   other-modules:
-      FlipperSpec
+      Control.FlipperSpec
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   default-language: Haskell2010

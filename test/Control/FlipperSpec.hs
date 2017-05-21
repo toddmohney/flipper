@@ -1,10 +1,10 @@
-module FlipperSpec (main, spec) where
+module Control.FlipperSpec (main, spec) where
 
 import           Control.Monad.State (evalState, execState)
 import qualified Data.Map.Strict     as M
 import           Test.Hspec
 
-import           Flipper
+import           Control.Flipper
 
 main :: IO ()
 main = hspec spec

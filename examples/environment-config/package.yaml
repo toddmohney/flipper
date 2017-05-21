@@ -1,0 +1,26 @@
+name: environment-config
+version: '0.1.0.0'
+category: Web
+author: Todd Mohney
+maintainer: toddmohney@gmail.com
+copyright: 2017 Todd Mohney
+license: BSD3
+github: toddmohney/feature-flipper
+extra-source-files:
+- README.md
+executables:
+  environment-config:
+      main: Main.hs
+      source-dirs: .
+      ghc-options:
+      - -Wall
+      - -fwarn-unused-matches
+      - -fwarn-unused-binds
+      - -fwarn-unused-imports
+      default-extensions:
+      - OverloadedStrings
+      dependencies:
+      - base >=4.7 && <5
+      - containers
+      - feature-flipper
+      - mtl

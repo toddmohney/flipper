@@ -2,20 +2,20 @@
 Module      : Flipper
 Description : Main user interface for the Flipper library
 -}
-module Flipper
+module Control.Flipper
     ( enabled
     , enable
     , disable
     , toggle
     , whenEnabled
-    , module Flipper.Types
+    , module Control.Flipper.Types
     ) where
 
 import           Control.Monad   (void, when)
 import qualified Data.Map.Strict as M
 
-import           Flipper.Types   (FeatureName (..), Features (..),
-                                  HasFeatureFlags (..), mkFeatures)
+import           Control.Flipper.Types   (FeatureName (..), Features (..),
+                                          HasFeatureFlags (..), mkFeatures)
 
 {- |
 The 'whenEnabled' function calls the supplied function, 'm ()', when the given
