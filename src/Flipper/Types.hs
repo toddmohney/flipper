@@ -1,6 +1,10 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE TypeFamilies      #-}
 
+{-|
+Module      : Flipper.Types
+Description : Datatype and Typeclass definitions
+-}
 module Flipper.Types
     ( Features(..)
     , FeatureName(..)
@@ -29,6 +33,9 @@ instance (Monad m) => HasFeatureFlags (StateT Features m) where
     getFeatures = get
     updateFeatures = put
 
+{- |
+An abstraction representing the current state of the features store.
+-}
 newtype Features = Features { unFeatures :: Map FeatureName Bool }
     deriving (Show, Eq)
 
@@ -36,11 +43,17 @@ instance Monoid Features where
     mempty = Features mempty
     mappend a b = Features (unFeatures a <> unFeatures b)
 
+{- |
+The main identifier of a feature
+-}
 newtype FeatureName = FeatureName { unFeatureName :: Text }
     deriving (Show, Eq, Ord)
 
 instance IsString FeatureName where
     fromString s = FeatureName (T.pack s)
 
+{- |
+Convienience constructor
+-}
 mkFeatures :: Map FeatureName Bool -> Features
 mkFeatures = Features

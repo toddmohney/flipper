@@ -1,6 +1,5 @@
 module Main where
 
-import Control.Monad (when)
 import Control.Monad.State
 import qualified Data.Map.Strict as Map
 import Data.Maybe (maybe)
@@ -18,27 +17,24 @@ main = do
 runWithFeatureFlags :: (MonadIO m, HasFeatureFlags m)
                     => m ()
 runWithFeatureFlags = do
-    stuffEnabled <- enabled "ENABLE_STUFF"
-    thingsEnabled <- enabled "ENABLE_THINGS"
+    whenEnabled
+        "SOME_FEATURE"
+        (liftIO $ putStrLn "We're running SOME_FEATURE!")
 
-    when
-        stuffEnabled
-        (liftIO $ putStrLn "We're running STUFF!")
-
-    when
-        thingsEnabled
-        (liftIO $ putStrLn "We're running THINGS!")
+    whenEnabled
+        "SOME_OTHER_FEATURE"
+        (liftIO $ putStrLn "We're running SOME_OTHER_FEATURE!")
 
     liftIO $ putStrLn "Done!"
 
 loadFeatures :: IO Features
 loadFeatures = do
     -- load feature flags from the environment
-    doStuffEnabled <- maybe False read <$> Env.lookupEnv "ENABLE_STUFF"
-    doThingsEnabled <- maybe False read <$> Env.lookupEnv "ENABLE_THINGS"
+    someFeatureEnabled <- maybe False read <$> Env.lookupEnv "SOME_FEATURE"
+    someOtherFeatureEnabled <- maybe False read <$> Env.lookupEnv "SOME_OTHER_FEATURE"
 
     -- build flipper feature type
     pure . Features $ Map.fromList
-        [ ("ENABLE_STUFF", doStuffEnabled)
-        , ("ENABLE_THINGS", doThingsEnabled)
+        [ ("SOME_FEATURE", someFeatureEnabled)
+        , ("SOME_OTHER_FEATURE", someOtherFeatureEnabled)
         ]

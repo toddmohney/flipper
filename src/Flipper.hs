@@ -1,19 +1,38 @@
+{-|
+Module      : Flipper
+Description : Main user interface for the Flipper library
+-}
 module Flipper
     ( enabled
     , enable
     , disable
     , toggle
+    , whenEnabled
     , module Flipper.Types
     ) where
 
-import           Control.Monad   (void)
+import           Control.Monad   (void, when)
 import qualified Data.Map.Strict as M
 
 import           Flipper.Types   (FeatureName (..), Features (..),
                                   HasFeatureFlags (..), mkFeatures)
 
 {- |
-The 'enabled' returns a Bool indicating if the queried feature is active.
+The 'whenEnabled' function calls the supplied function, 'm ()', when the given
+'FeatureName' is enabled.
+
+When the feature specified by 'FeatureName' is disabled, 'm ()' is not
+evaluated.
+-}
+whenEnabled :: (HasFeatureFlags m)
+            => FeatureName -> m () -> m ()
+whenEnabled fName f = do
+    isEnabled <- enabled fName
+    when isEnabled f
+
+{- |
+The 'enabled' function returns a Bool indicating if the queried feature is
+active.
 
 When the queried FeatureName exists, the active state is returned.
 

@@ -1,6 +1,6 @@
 module FlipperSpec (main, spec) where
 
-import           Control.Monad.State (evalState)
+import           Control.Monad.State (evalState, execState)
 import qualified Data.Map.Strict     as M
 import           Test.Hspec
 
@@ -11,6 +11,27 @@ main = hspec spec
 
 spec :: Spec
 spec = do
+    describe "whenEnabled" $ do
+        context "the feature is enabled" $
+            it "evaluates the given monad" $
+                let
+                    featureState = mkFeatures $ M.insert "ADD_ANOTHER_FEATURE" True mempty
+                    store = execState
+                        (whenEnabled "ADD_ANOTHER_FEATURE" (enable "ANOTHER_FEATURE"))
+                        featureState
+                in
+                    M.lookup "ANOTHER_FEATURE" (unFeatures store) `shouldBe` Just True
+
+        context "the feature is disabled" $
+            it "does not evaluate the given monad" $
+                let
+                    featureState = mkFeatures $ M.insert "ADD_ANOTHER_FEATURE" False mempty
+                    store = execState
+                        (whenEnabled "ADD_ANOTHER_FEATURE" (enable "ANOTHER_FEATURE"))
+                        featureState
+                in
+                    M.lookup "ANOTHER_FEATURE" (unFeatures store) `shouldBe` Nothing
+
     describe "enable" $ do
         it "enables a new feature key" $
             let
