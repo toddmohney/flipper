@@ -1,9 +1,6 @@
 module Flipper
-    ( enable
-    , enabled
-    , disable
-    , flipFeature
-    , mkFeatures
+    ( module Flipper
+    , module Flipper.Types
     ) where
 
 import           Control.Monad   (void)
