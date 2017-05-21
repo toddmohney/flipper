@@ -41,25 +41,25 @@ spec = do
             in
                 result `shouldBe` False
 
-    describe "flipFeature" $ do
+    describe "toggle" $ do
         it "enables a new feature key" $
             let
                 featureState = mempty :: Features
-                result = evalState (flipFeature "NEW_FEATURE" >> enabled "NEW_FEATURE") featureState
+                result = evalState (toggle "NEW_FEATURE" >> enabled "NEW_FEATURE") featureState
             in
                 result `shouldBe` True
 
         it "enables a disabled feature key" $
             let
                 featureState = mkFeatures $ M.insert "FEATURE" False mempty
-                result = evalState (flipFeature "FEATURE" >> enabled "FEATURE") featureState
+                result = evalState (toggle "FEATURE" >> enabled "FEATURE") featureState
             in
                 result `shouldBe` True
 
         it "disables a enabled feature key" $
             let
                 featureState = mkFeatures $ M.insert "FEATURE" True mempty
-                result = evalState (flipFeature "FEATURE" >> enabled "FEATURE") featureState
+                result = evalState (toggle "FEATURE" >> enabled "FEATURE") featureState
             in
                 result `shouldBe` False
 

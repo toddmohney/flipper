@@ -15,9 +15,14 @@ import           Data.String         (IsString (..))
 import           Data.Text           (Text)
 import qualified Data.Text           as T
 
-
+{- |
+The 'HasFeatureFlags' typeclass describes how to access and modify the Features
+store within the current monad.
+-}
 class Monad m => HasFeatureFlags m where
+    -- | 'getFeatures' access the Features store within the current monad
     getFeatures :: m Features
+    -- | 'updateFeatures' modifies the Features store within the current monad
     updateFeatures :: Features -> m ()
 
 instance (Monad m) => HasFeatureFlags (StateT Features m) where
