@@ -8,7 +8,7 @@ module Flipper.Types
     , mkFeatures
     ) where
 
-import           Control.Monad.State (State, get, put)
+import           Control.Monad.State (StateT, get, put)
 import           Data.Map.Strict     (Map)
 import           Data.Monoid
 import           Data.String         (IsString (..))
@@ -20,7 +20,7 @@ class Monad m => HasFeatureFlags m where
     getFeatures :: m Features
     updateFeatures :: Features -> m ()
 
-instance HasFeatureFlags (State Features) where
+instance (Monad m) => HasFeatureFlags (StateT Features m) where
     getFeatures = get
     updateFeatures = put
 

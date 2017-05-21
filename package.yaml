@@ -44,3 +44,19 @@ tests:
     - QuickCheck
     other-modules:
     - FlipperSpec
+executables:
+  environment-config:
+      main: Main.hs
+      source-dirs: examples/environment-config
+      ghc-options:
+      - -Wall
+      - -fwarn-unused-matches
+      - -fwarn-unused-binds
+      - -fwarn-unused-imports
+      default-extensions:
+      - OverloadedStrings
+      dependencies:
+      - base >=4.7 && <5
+      - containers
+      - feature-flipper
+      - mtl

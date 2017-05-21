@@ -5,7 +5,6 @@ import qualified Data.Map.Strict     as M
 import           Test.Hspec
 
 import           Flipper
-import           Flipper.Types
 
 main :: IO ()
 main = hspec spec
