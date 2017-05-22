@@ -9,6 +9,7 @@ module Control.Flipper.Types
     ( Features(..)
     , FeatureName(..)
     , HasFeatureFlags(..)
+    , ModifiesFeatureFlags(..)
     , mkFeatures
     ) where
 
@@ -20,17 +21,25 @@ import           Data.Text           (Text)
 import qualified Data.Text           as T
 
 {- |
-The 'HasFeatureFlags' typeclass describes how to access and modify the Features
-store within the current monad.
+The 'HasFeatureFlags' typeclass describes how to access the Features store
+within the current monad.
 -}
 class Monad m => HasFeatureFlags m where
     -- | 'getFeatures' access the Features store within the current monad
     getFeatures :: m Features
-    -- | 'updateFeatures' modifies the Features store within the current monad
-    updateFeatures :: Features -> m ()
 
 instance (Monad m) => HasFeatureFlags (StateT Features m) where
     getFeatures = get
+
+{- |
+The 'ModifiesFeatureFlags' typeclass describes how to modify the Features store
+within the current monad.
+-}
+class HasFeatureFlags m => ModifiesFeatureFlags m where
+    -- | 'updateFeatures' modifies the Features store within the current monad
+    updateFeatures :: Features -> m ()
+
+instance (Monad m) => ModifiesFeatureFlags (StateT Features m) where
     updateFeatures = put
 
 {- |
