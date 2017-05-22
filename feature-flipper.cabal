@@ -4,9 +4,11 @@
 
 name:                feature-flipper
 version:             0.1.0.0
+synopsis:            A minimally obtrusive feature flag library
+description:         A minimally obtrusive feature flag library
 homepage:            https://github.com/toddmohney/feature-flipper#readme
 bug-reports:         https://github.com/toddmohney/feature-flipper/issues
-license:             BSD3
+license:             MIT
 license-file:        LICENSE
 author:              Todd Mohney
 maintainer:          toddmohney@gmail.com
