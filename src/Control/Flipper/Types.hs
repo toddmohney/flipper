@@ -2,7 +2,7 @@
 {-# LANGUAGE TypeFamilies      #-}
 
 {-|
-Module      : Flipper.Types
+Module      : Control.Flipper.Types
 Description : Datatype and Typeclass definitions
 -}
 module Control.Flipper.Types
