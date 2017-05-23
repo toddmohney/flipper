@@ -10,11 +10,14 @@ module Control.Flipper.Types
     , FeatureName(..)
     , HasFeatureFlags(..)
     , ModifiesFeatureFlags(..)
+    , update
     , mkFeatures
     ) where
 
+import           Control.Monad       (void)
 import           Control.Monad.State (StateT, get, put)
 import           Data.Map.Strict     (Map)
+import qualified Data.Map.Strict     as Map
 import           Data.Monoid
 import           Data.String         (IsString (..))
 import           Data.Text           (Text)
@@ -28,8 +31,15 @@ class Monad m => HasFeatureFlags m where
     -- | 'getFeatures' access the Features store within the current monad
     getFeatures :: m Features
 
+    -- | 'getFeature' access a single Feature within the current monad
+    getFeature :: FeatureName -> m (Maybe Bool)
+
 instance (Monad m) => HasFeatureFlags (StateT Features m) where
     getFeatures = get
+
+    getFeature featureName = do
+        features <- unFeatures <$> getFeatures
+        return (Map.lookup featureName features)
 
 {- |
 The 'ModifiesFeatureFlags' typeclass describes how to modify the Features store
@@ -39,8 +49,14 @@ class HasFeatureFlags m => ModifiesFeatureFlags m where
     -- | 'updateFeatures' modifies the Features store within the current monad
     updateFeatures :: Features -> m ()
 
+    -- | 'updateFeature' modifies a single Feature within the current monad
+    updateFeature :: FeatureName -> Bool -> m ()
+
 instance (Monad m) => ModifiesFeatureFlags (StateT Features m) where
     updateFeatures = put
+
+    updateFeature featureName True  = update featureName (\_ -> Just True)
+    updateFeature featureName False = update featureName (\_ -> Just False)
 
 {- |
 An abstraction representing the current state of the features store.
@@ -66,3 +82,12 @@ Convienience constructor
 -}
 mkFeatures :: Map FeatureName Bool -> Features
 mkFeatures = Features
+
+{- |
+Updates a single Feature within the current monad
+-}
+update :: ModifiesFeatureFlags m
+       => FeatureName -> (Maybe Bool -> Maybe Bool) -> m ()
+update fName updateFn = do
+    features <- unFeatures <$> getFeatures
+    void . updateFeatures . Features $ Map.alter updateFn fName features
