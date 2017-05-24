@@ -11,11 +11,9 @@ module Control.Flipper
     , module Control.Flipper.Types
     ) where
 
-import           Control.Monad   (void, when)
-import qualified Data.Map.Strict as M
+import           Control.Monad         (when)
 
-import           Control.Flipper.Types   (FeatureName(..), Features(..),
-                                          HasFeatureFlags(..), ModifiesFeatureFlags(..), mkFeatures)
+import           Control.Flipper.Types
 
 {- |
 The 'whenEnabled' function calls the supplied function, 'm ()', when the given
@@ -41,8 +39,8 @@ When the queried FeatureName does not exists, 'enabled' returns False.
 enabled :: HasFeatureFlags m
         => FeatureName -> m Bool
 enabled fName = do
-    features <- unFeatures <$> getFeatures
-    if M.lookup fName features == Just True
+    feature <- getFeature fName
+    if feature == Just True
         then return True
         else return False
 
@@ -55,7 +53,7 @@ When the FeatureName does not exist, it is created and set to active.
 -}
 enable :: ModifiesFeatureFlags m
        => FeatureName -> m ()
-enable fName = update fName (\_ -> Just True)
+enable fName = updateFeature fName True
 
 {- |
 The 'disable' function deactivates a feature.
@@ -66,7 +64,7 @@ When the FeatureName does not exist, it is created and set to inactive.
 -}
 disable :: ModifiesFeatureFlags m
         => FeatureName -> m ()
-disable fName = update fName (\_ -> Just False)
+disable fName = updateFeature fName False
 
 {- |
 The 'toggle' function flips the current state of a feature.
@@ -82,9 +80,3 @@ toggle fName = update fName flipIt'
         flipIt' :: Maybe Bool -> Maybe Bool
         flipIt' (Just a) = Just (not a)
         flipIt' Nothing  = Just True
-
-update :: ModifiesFeatureFlags m
-       => FeatureName -> (Maybe Bool -> Maybe Bool) -> m ()
-update fName updateFn = do
-    features <- unFeatures <$> getFeatures
-    void . updateFeatures . Features $ M.alter updateFn fName features

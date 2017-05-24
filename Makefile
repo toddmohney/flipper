@@ -1,10 +1,11 @@
 .PHONY: devel hlint stylish-haskell test
 
 devel:
-	stack test --file-watch --exec="$(MAKE) hlint"
+	stack test feature-flipper --file-watch --exec="$(MAKE) hlint"
 
 test:
-	stack test --exec="$(MAKE) hlint"
+	stack build examples/environment-config && \
+		stack test feature-flipper --exec="$(MAKE) hlint"
 
 hlint:
 	hlint src
