@@ -1,4 +1,5 @@
 {-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE TypeFamilies      #-}
 
 {-|
@@ -8,20 +9,39 @@ Description : Datatype and Typeclass definitions
 module Control.Flipper.Types
     ( Features(..)
     , FeatureName(..)
+    , Flipper(..)
     , HasFeatureFlags(..)
     , ModifiesFeatureFlags(..)
+    , evalFlipper
+    , execFlipper
     , update
     , mkFeatures
     ) where
 
+import           Control.Monad.IO.Class            (MonadIO)
 import           Control.Monad       (void)
-import           Control.Monad.State (StateT, get, put)
+import           Control.Monad.State
 import           Data.Map.Strict     (Map)
 import qualified Data.Map.Strict     as Map
 import           Data.Monoid
 import           Data.String         (IsString (..))
 import           Data.Text           (Text)
 import qualified Data.Text           as T
+
+newtype Flipper m a = Flipper { unFlipper :: StateT Features m a }
+    deriving ( Functor
+             , Applicative
+             , Monad
+             , MonadIO
+             , MonadState Features
+             , MonadTrans
+             )
+
+evalFlipper :: (Monad m) => Features -> Flipper m a -> m a
+evalFlipper features f = evalStateT (unFlipper f) features
+
+execFlipper :: (Monad m) => Features -> Flipper m a -> m Features
+execFlipper features f = execStateT (unFlipper f) features
 
 {- |
 The 'HasFeatureFlags' typeclass describes how to access the Features store
@@ -34,7 +54,7 @@ class Monad m => HasFeatureFlags m where
     -- | 'getFeature' access a single Feature within the current monad
     getFeature :: FeatureName -> m (Maybe Bool)
 
-instance (Monad m) => HasFeatureFlags (StateT Features m) where
+instance (Monad m) => HasFeatureFlags (Flipper m) where
     getFeatures = get
 
     getFeature featureName = do
@@ -52,7 +72,7 @@ class HasFeatureFlags m => ModifiesFeatureFlags m where
     -- | 'updateFeature' modifies a single Feature within the current monad
     updateFeature :: FeatureName -> Bool -> m ()
 
-instance (Monad m) => ModifiesFeatureFlags (StateT Features m) where
+instance (Monad m) => ModifiesFeatureFlags (Flipper m) where
     updateFeatures = put
 
     updateFeature featureName True  = update featureName (\_ -> Just True)

@@ -12,7 +12,7 @@ main = do
     features <- loadFeatures
 
     -- StateT has a HasFeatureFlags instance defined
-    evalStateT runWithFeatureFlags features
+    evalFlipper features runWithFeatureFlags
 
 runWithFeatureFlags :: (MonadIO m, HasFeatureFlags m)
                     => m ()
