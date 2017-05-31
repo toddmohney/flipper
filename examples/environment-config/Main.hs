@@ -1,18 +1,19 @@
 module Main where
 
-import Control.Monad.State
-import qualified Data.Map.Strict as Map
-import Data.Maybe (maybe)
-import qualified System.Environment as Env
+import           Control.Monad.State
+import qualified Data.Map.Strict                 as Map
+import           Data.Maybe                      (maybe)
+import qualified System.Environment              as Env
 
-import Control.Flipper
+import           Control.Flipper
+import           Control.Flipper.Adapters.Memory
 
 main :: IO ()
 main = do
     features <- loadFeatures
 
     -- StateT has a HasFeatureFlags instance defined
-    evalFlipper features runWithFeatureFlags
+    evalFlipperT features runWithFeatureFlags
 
 runWithFeatureFlags :: (MonadIO m, HasFeatureFlags m)
                     => m ()
