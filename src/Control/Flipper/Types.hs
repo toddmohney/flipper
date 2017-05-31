@@ -1,3 +1,4 @@
+{-# LANGUAGE DefaultSignatures #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE TypeFamilies      #-}
 
@@ -32,16 +33,17 @@ class Monad m => HasFeatureFlags m where
     -- | 'getFeatures' access the Features store within the current monad
     getFeatures :: m Features
 
+    default getFeatures :: (MonadTrans t, HasFeatureFlags m1, m ~ t m1) => m Features
+    getFeatures = lift getFeatures
+
     -- | 'getFeature' access a single Feature within the current monad
     getFeature :: FeatureName -> m (Maybe Bool)
 
-instance (MonadIO m, HasFeatureFlags m) => HasFeatureFlags (StateT s m) where
-    getFeatures = lift getFeatures
+    default getFeature :: (MonadTrans t, HasFeatureFlags m1, m ~ t m1) => FeatureName -> m (Maybe Bool)
     getFeature = lift . getFeature
 
-instance (MonadIO m, HasFeatureFlags m) => HasFeatureFlags (ReaderT s m) where
-    getFeatures = lift getFeatures
-    getFeature = lift . getFeature
+instance (MonadIO m, HasFeatureFlags m) => HasFeatureFlags (StateT s m)
+instance (MonadIO m, HasFeatureFlags m) => HasFeatureFlags (ReaderT s m)
 
 {- |
 The 'ModifiesFeatureFlags' typeclass describes how to modify the Features store
@@ -51,16 +53,17 @@ class HasFeatureFlags m => ModifiesFeatureFlags m where
     -- | 'updateFeatures' modifies the Features store within the current monad
     updateFeatures :: Features -> m ()
 
+    default updateFeatures :: (MonadTrans t, ModifiesFeatureFlags m1, m ~ t m1) => Features -> m ()
+    updateFeatures = lift . updateFeatures
+
     -- | 'updateFeature' modifies a single Feature within the current monad
     updateFeature :: FeatureName -> Bool -> m ()
 
-instance (MonadIO m, ModifiesFeatureFlags m) => ModifiesFeatureFlags (StateT s m) where
-    updateFeatures = lift . updateFeatures
+    default updateFeature :: (MonadTrans t, ModifiesFeatureFlags m1, m ~ t m1) => FeatureName -> Bool -> m ()
     updateFeature fName isEnabled = lift $ updateFeature fName isEnabled
 
-instance (MonadIO m, ModifiesFeatureFlags m) => ModifiesFeatureFlags (ReaderT s m) where
-    updateFeatures = lift . updateFeatures
-    updateFeature fName isEnabled = lift $ updateFeature fName isEnabled
+instance (MonadIO m, ModifiesFeatureFlags m) => ModifiesFeatureFlags (StateT s m)
+instance (MonadIO m, ModifiesFeatureFlags m) => ModifiesFeatureFlags (ReaderT s m)
 
 {- |
 An abstraction representing the current state of the features store.
