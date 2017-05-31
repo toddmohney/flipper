@@ -15,6 +15,8 @@ module Control.Flipper.Types
     ) where
 
 import           Control.Monad   (void)
+import           Control.Monad.Reader
+import           Control.Monad.State
 import           Data.Map.Strict (Map)
 import qualified Data.Map.Strict as Map
 import           Data.Monoid
@@ -33,6 +35,14 @@ class Monad m => HasFeatureFlags m where
     -- | 'getFeature' access a single Feature within the current monad
     getFeature :: FeatureName -> m (Maybe Bool)
 
+instance (MonadIO m, HasFeatureFlags m) => HasFeatureFlags (StateT s m) where
+    getFeatures = lift getFeatures
+    getFeature = lift . getFeature
+
+instance (MonadIO m, HasFeatureFlags m) => HasFeatureFlags (ReaderT s m) where
+    getFeatures = lift getFeatures
+    getFeature = lift . getFeature
+
 {- |
 The 'ModifiesFeatureFlags' typeclass describes how to modify the Features store
 within the current monad.
@@ -43,6 +53,14 @@ class HasFeatureFlags m => ModifiesFeatureFlags m where
 
     -- | 'updateFeature' modifies a single Feature within the current monad
     updateFeature :: FeatureName -> Bool -> m ()
+
+instance (MonadIO m, ModifiesFeatureFlags m) => ModifiesFeatureFlags (StateT s m) where
+    updateFeatures = lift . updateFeatures
+    updateFeature fName isEnabled = lift $ updateFeature fName isEnabled
+
+instance (MonadIO m, ModifiesFeatureFlags m) => ModifiesFeatureFlags (ReaderT s m) where
+    updateFeatures = lift . updateFeatures
+    updateFeature fName isEnabled = lift $ updateFeature fName isEnabled
 
 {- |
 An abstraction representing the current state of the features store.
