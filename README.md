@@ -1,5 +1,7 @@
 # flipper
 
+[![CircleCI](https://circleci.com/gh/toddmohney/flipper/tree/master.svg?style=svg)](https://circleci.com/gh/toddmohney/flipper/tree/master)
+
 A light-weight library providing an interface for minimally obtrusive feature
 toggles.
 
@@ -21,9 +23,7 @@ your module.
 
 - [Configuring feature flags from environment variables](https://github.com/toddmohney/flipper/tree/master/examples/environment-config)
 
-## Roadmap
+### Persistent storage adapters
 
-### Add storage adapters
-
-- TODO: Create Postgres adapter
-- TODO: Create Redis adapter
+If persisting your feature flags in Postgres is more your cup of tea, check
+out [Flipper Postgres](https://github.com/toddmohney/flipper-postgres)
