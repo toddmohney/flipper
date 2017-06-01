@@ -7,7 +7,7 @@ author: Todd Mohney
 maintainer: toddmohney@gmail.com
 copyright: 2017 Todd Mohney
 license: MIT
-github: toddmohney/feature-flipper
+github: toddmohney/flipper
 extra-source-files:
 - README.md
 library:
