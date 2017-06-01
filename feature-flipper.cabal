@@ -3,7 +3,7 @@
 -- see: https://github.com/sol/hpack
 
 name:                feature-flipper
-version:             0.2.0.0
+version:             0.2.0.1
 synopsis:            A minimally obtrusive feature flag library
 description:         A minimally obtrusive feature flag library
 homepage:            https://github.com/toddmohney/feature-flipper#readme
@@ -36,23 +36,10 @@ library
   other-modules:
       Paths_feature_flipper
   build-depends:
-      base >=4.7 && <5
+      base >=4.8 && <5
     , containers
     , mtl
     , text
-  default-language: Haskell2010
-
-executable environment-config
-  main-is: Main.hs
-  hs-source-dirs:
-      examples/environment-config
-  default-extensions: OverloadedStrings
-  ghc-options: -Wall -fwarn-unused-matches -fwarn-unused-binds -fwarn-unused-imports
-  build-depends:
-      base >=4.7 && <5
-    , containers
-    , feature-flipper
-    , mtl
   default-language: Haskell2010
 
 test-suite feature-flipper-test
@@ -67,7 +54,6 @@ test-suite feature-flipper-test
     , feature-flipper
     , hspec
     , mtl
-    , QuickCheck
   other-modules:
       Control.FlipperSpec
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
