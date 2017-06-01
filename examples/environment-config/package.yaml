@@ -22,7 +22,7 @@ executables:
       default-extensions:
       - OverloadedStrings
       dependencies:
-      - base >=4.7 && <5
+      - base >=4.8 && <5
       - containers
       - feature-flipper
       - mtl

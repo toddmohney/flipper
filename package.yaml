@@ -1,5 +1,5 @@
 name: feature-flipper
-version: '0.2.0.0'
+version: '0.2.0.1'
 synopsis: A minimally obtrusive feature flag library
 description: A minimally obtrusive feature flag library
 category: Web
@@ -7,7 +7,7 @@ author: Todd Mohney
 maintainer: toddmohney@gmail.com
 copyright: 2017 Todd Mohney
 license: MIT
-github: toddmohney/feature-flipper
+github: toddmohney/flipper
 extra-source-files:
 - README.md
 library:
@@ -24,7 +24,7 @@ library:
   - Control.Flipper.Types
   - Control.Flipper.Adapters.Memory
   dependencies:
-  - base >=4.7 && <5
+  - base >=4.8 && <5
   - containers
   - mtl
   - text
@@ -44,22 +44,5 @@ tests:
     - feature-flipper
     - hspec
     - mtl
-    - QuickCheck
     other-modules:
     - Control.FlipperSpec
-executables:
-  environment-config:
-      main: Main.hs
-      source-dirs: examples/environment-config
-      ghc-options:
-      - -Wall
-      - -fwarn-unused-matches
-      - -fwarn-unused-binds
-      - -fwarn-unused-imports
-      default-extensions:
-      - OverloadedStrings
-      dependencies:
-      - base >=4.7 && <5
-      - containers
-      - feature-flipper
-      - mtl
