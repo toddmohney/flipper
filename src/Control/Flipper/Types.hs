@@ -13,7 +13,6 @@ module Control.Flipper.Types
     , HasFeatureFlags(..)
     , ModifiesFeatureFlags(..)
     , update
-    , mkFeatures
     ) where
 
 import           Control.Monad   (void)
@@ -88,12 +87,6 @@ newtype FeatureName = FeatureName { unFeatureName :: Text }
 
 instance IsString FeatureName where
     fromString s = FeatureName (T.pack s)
-
-{- |
-Convienience constructor
--}
-mkFeatures :: Map FeatureName Feature -> Features
-mkFeatures = Features
 
 {- |
 Updates a single Feature within the current monad
