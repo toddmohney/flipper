@@ -13,14 +13,20 @@ module Control.Flipper.Types
     , HasFeatureFlags(..)
     , ModifiesFeatureFlags(..)
     , update
+    , isEnabledFor
     ) where
 
 import           Control.Monad   (void)
 import           Control.Monad.Reader
 import           Control.Monad.State
+import           Data.Default
+import           Data.Digest.CRC32 (CRC32)
+import qualified Data.Digest.CRC32 as D
+import qualified Data.List as L
 import           Data.Map.Strict (Map)
 import qualified Data.Map.Strict as Map
 import           Data.Monoid
+import           Data.Word (Word32)
 import           Data.String     (IsString (..))
 import           Data.Text       (Text)
 import qualified Data.Text       as T
@@ -65,9 +71,16 @@ class HasFeatureFlags m => ModifiesFeatureFlags m where
 instance (MonadIO m, ModifiesFeatureFlags m) => ModifiesFeatureFlags (StateT s m)
 instance (MonadIO m, ModifiesFeatureFlags m) => ModifiesFeatureFlags (ReaderT s m)
 
-newtype Feature = Feature
+data Feature = Feature
     { isEnabled :: Bool
+    , enabledEntities :: [Word32]
     } deriving (Show, Eq)
+
+instance Default Feature where
+    def = Feature
+        { isEnabled = False
+        , enabledEntities = []
+        }
 
 {- |
 An abstraction representing the current state of the features store.
@@ -96,3 +109,7 @@ update :: ModifiesFeatureFlags m
 update fName updateFn = do
     features <- unFeatures <$> getFeatures
     void . updateFeatures . Features $ Map.alter updateFn fName features
+
+isEnabledFor :: (CRC32 a) => Feature -> a -> Bool
+isEnabledFor feature entity =
+    isEnabled feature || L.elem (D.crc32 entity) (enabledEntities feature)

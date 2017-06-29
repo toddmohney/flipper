@@ -2,6 +2,7 @@ module Main where
 
 import           Control.Monad.State
 import qualified Data.Map.Strict                 as Map
+import           Data.Default
 import           Data.Maybe                      (maybe)
 import qualified System.Environment              as Env
 
@@ -31,11 +32,14 @@ runWithFeatureFlags = do
 loadFeatures :: IO Features
 loadFeatures = do
     -- load feature flags from the environment
-    someFeatureEnabled      <- maybe (Feature False) (Feature . read) <$> Env.lookupEnv "SOME_FEATURE"
-    someOtherFeatureEnabled <- maybe (Feature False) (Feature . read) <$> Env.lookupEnv "SOME_OTHER_FEATURE"
+    someFeatureEnabled      <- maybe def (mkFeature . read) <$> Env.lookupEnv "SOME_FEATURE"
+    someOtherFeatureEnabled <- maybe def (mkFeature . read) <$> Env.lookupEnv "SOME_OTHER_FEATURE"
 
     -- build flipper feature type
     pure . Features $ Map.fromList
         [ ("SOME_FEATURE", someFeatureEnabled)
         , ("SOME_OTHER_FEATURE", someOtherFeatureEnabled)
         ]
+    where
+        mkFeature :: Bool -> Feature
+        mkFeature featureEnabled = def { isEnabled = featureEnabled }

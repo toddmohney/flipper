@@ -26,6 +26,8 @@ library:
   dependencies:
   - base >=4.8 && <5
   - containers
+  - data-default
+  - digest
   - mtl
   - text
 tests:
@@ -40,7 +42,10 @@ tests:
     - OverloadedStrings
     dependencies:
     - base
+    - bytestring
     - containers
+    - data-default
+    - digest
     - feature-flipper
     - hspec
     - mtl
