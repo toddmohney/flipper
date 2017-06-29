@@ -25,8 +25,8 @@ evaluated.
 whenEnabled :: (HasFeatureFlags m)
             => FeatureName -> m () -> m ()
 whenEnabled fName f = do
-    isEnabled <- enabled fName
-    when isEnabled f
+    featureEnabled <- enabled fName
+    when featureEnabled f
 
 {- |
 The 'enabled' function returns a Bool indicating if the queried feature is
@@ -39,10 +39,10 @@ When the queried FeatureName does not exists, 'enabled' returns False.
 enabled :: HasFeatureFlags m
         => FeatureName -> m Bool
 enabled fName = do
-    feature <- getFeature fName
-    if feature == Just True
-        then return True
-        else return False
+    mFeature <- getFeature fName
+    case mFeature of
+        (Just feature) -> return $ isEnabled feature
+        Nothing -> return False
 
 {- |
 The 'enable' function activates a feature.
@@ -53,7 +53,7 @@ When the FeatureName does not exist, it is created and set to active.
 -}
 enable :: ModifiesFeatureFlags m
        => FeatureName -> m ()
-enable fName = updateFeature fName True
+enable fName = upsertFeature fName True
 
 {- |
 The 'disable' function deactivates a feature.
@@ -64,7 +64,7 @@ When the FeatureName does not exist, it is created and set to inactive.
 -}
 disable :: ModifiesFeatureFlags m
         => FeatureName -> m ()
-disable fName = updateFeature fName False
+disable fName = upsertFeature fName False
 
 {- |
 The 'toggle' function flips the current state of a feature.
@@ -77,6 +77,20 @@ toggle :: ModifiesFeatureFlags m
             => FeatureName -> m ()
 toggle fName = update fName flipIt'
     where
-        flipIt' :: Maybe Bool -> Maybe Bool
-        flipIt' (Just a) = Just (not a)
-        flipIt' Nothing  = Just True
+        flipIt' :: Maybe Feature -> Maybe Feature
+        flipIt' (Just feature) = Just (feature { isEnabled = not (isEnabled feature) })
+        flipIt' Nothing  = Just Feature { isEnabled = True }
+
+{- |
+When the FeatureName exists in the store, it is set to the specified `isEnabled` state.
+
+When the FeatureName does not exist, it is created and set to the specified `isEnabled` state.
+-}
+upsertFeature :: ModifiesFeatureFlags m
+              => FeatureName -> Bool -> m ()
+upsertFeature fName featureEnabled =
+    update fName upsertFeature'
+    where
+        upsertFeature' :: (Maybe Feature -> Maybe Feature)
+        upsertFeature' Nothing        = Just Feature { isEnabled = featureEnabled }
+        upsertFeature' (Just feature) = Just (feature { isEnabled = featureEnabled })

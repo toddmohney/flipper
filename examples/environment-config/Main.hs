@@ -31,8 +31,8 @@ runWithFeatureFlags = do
 loadFeatures :: IO Features
 loadFeatures = do
     -- load feature flags from the environment
-    someFeatureEnabled <- maybe False read <$> Env.lookupEnv "SOME_FEATURE"
-    someOtherFeatureEnabled <- maybe False read <$> Env.lookupEnv "SOME_OTHER_FEATURE"
+    someFeatureEnabled      <- maybe (Feature False) (Feature . read) <$> Env.lookupEnv "SOME_FEATURE"
+    someOtherFeatureEnabled <- maybe (Feature False) (Feature . read) <$> Env.lookupEnv "SOME_OTHER_FEATURE"
 
     -- build flipper feature type
     pure . Features $ Map.fromList

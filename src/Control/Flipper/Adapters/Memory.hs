@@ -34,8 +34,7 @@ instance (Monad m) => HasFeatureFlags (FlipperT m) where
 instance (Monad m) => ModifiesFeatureFlags (FlipperT m) where
     updateFeatures = put
 
-    updateFeature featureName True  = update featureName (\_ -> Just True)
-    updateFeature featureName False = update featureName (\_ -> Just False)
+    updateFeature featureName feature  = update featureName (\_ -> Just feature)
 
 {- |
 Evaluates a feature-switched computation, returning the final value and

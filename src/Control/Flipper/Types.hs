@@ -7,7 +7,8 @@ Module      : Control.Flipper.Types
 Description : Datatype and Typeclass definitions
 -}
 module Control.Flipper.Types
-    ( Features(..)
+    ( Feature(..)
+    , Features(..)
     , FeatureName(..)
     , HasFeatureFlags(..)
     , ModifiesFeatureFlags(..)
@@ -37,9 +38,9 @@ class Monad m => HasFeatureFlags m where
     getFeatures = lift getFeatures
 
     -- | 'getFeature' access a single Feature within the current monad
-    getFeature :: FeatureName -> m (Maybe Bool)
+    getFeature :: FeatureName -> m (Maybe Feature)
 
-    default getFeature :: (MonadTrans t, HasFeatureFlags m1, m ~ t m1) => FeatureName -> m (Maybe Bool)
+    default getFeature :: (MonadTrans t, HasFeatureFlags m1, m ~ t m1) => FeatureName -> m (Maybe Feature)
     getFeature = lift . getFeature
 
 instance (MonadIO m, HasFeatureFlags m) => HasFeatureFlags (StateT s m)
@@ -57,18 +58,22 @@ class HasFeatureFlags m => ModifiesFeatureFlags m where
     updateFeatures = lift . updateFeatures
 
     -- | 'updateFeature' modifies a single Feature within the current monad
-    updateFeature :: FeatureName -> Bool -> m ()
+    updateFeature :: FeatureName -> Feature -> m ()
 
-    default updateFeature :: (MonadTrans t, ModifiesFeatureFlags m1, m ~ t m1) => FeatureName -> Bool -> m ()
-    updateFeature fName isEnabled = lift $ updateFeature fName isEnabled
+    default updateFeature :: (MonadTrans t, ModifiesFeatureFlags m1, m ~ t m1) => FeatureName -> Feature -> m ()
+    updateFeature fName feature = lift $ updateFeature fName feature
 
 instance (MonadIO m, ModifiesFeatureFlags m) => ModifiesFeatureFlags (StateT s m)
 instance (MonadIO m, ModifiesFeatureFlags m) => ModifiesFeatureFlags (ReaderT s m)
 
+newtype Feature = Feature
+    { isEnabled :: Bool
+    } deriving (Show, Eq)
+
 {- |
 An abstraction representing the current state of the features store.
 -}
-newtype Features = Features { unFeatures :: Map FeatureName Bool }
+newtype Features = Features { unFeatures :: Map FeatureName Feature }
     deriving (Show, Eq)
 
 instance Monoid Features where
@@ -87,14 +92,14 @@ instance IsString FeatureName where
 {- |
 Convienience constructor
 -}
-mkFeatures :: Map FeatureName Bool -> Features
+mkFeatures :: Map FeatureName Feature -> Features
 mkFeatures = Features
 
 {- |
 Updates a single Feature within the current monad
 -}
 update :: ModifiesFeatureFlags m
-       => FeatureName -> (Maybe Bool -> Maybe Bool) -> m ()
+       => FeatureName -> (Maybe Feature -> Maybe Feature) -> m ()
 update fName updateFn = do
     features <- unFeatures <$> getFeatures
     void . updateFeatures . Features $ Map.alter updateFn fName features
