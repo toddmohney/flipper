@@ -50,8 +50,6 @@ whenEnabledFor fName actor f = do
 The 'enabled' function returns a Bool indicating if the queried feature is
 active.
 
-When the queried FeatureName exists, the active state is returned.
-
 When the queried FeatureName does not exists, 'enabled' returns False.
 -}
 enabled :: HasFeatureFlags m
@@ -77,9 +75,7 @@ enabledFor fName actor = do
         (Just feature) -> return $ isEnabledFor feature actor
 
 {- |
-The 'enable' function activates a feature.
-
-When the FeatureName exists in the store, it is set to active.
+The 'enable' function activates a feature globally.
 
 When the FeatureName does not exist, it is created and set to active.
 -}
@@ -100,16 +96,12 @@ enableFor fName actor =
     where
         enableFor' :: (Maybe Feature -> Maybe Feature)
         enableFor' (Just feature) = Just $ feature
-            { enabledEntities = enabledEntities feature <> [actorId actor]
-            }
+            { enabledEntities = enabledEntities feature <> [actorId actor] }
         enableFor' Nothing = Just $ def
-            { enabledEntities = mempty <> [actorId actor]
-            }
+            { enabledEntities = mempty <> [actorId actor] }
 
 {- |
-The 'disable' function deactivates a feature.
-
-When the FeatureName exists in the store, it is set to inactive.
+The 'disable' function deactivates a feature globally.
 
 When the FeatureName does not exist, it is created and set to inactive.
 -}
@@ -118,9 +110,7 @@ disable :: ModifiesFeatureFlags m
 disable fName = upsertFeature fName False
 
 {- |
-The 'toggle' function flips the current state of a feature.
-
-When the FeatureName exists in the store, it flips the feature state.
+The 'toggle' function flips the current state of a feature globally.
 
 When the FeatureName does not exist, it is created and set to True.
 -}
