@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 
-name:           environment-config
+name:           enable-feature-for-a-specific-user
 version:        0.1.0.0
 synopsis:       Examples of feature-flipper usage patterns
 description:    Examples of feature-flipper usage patterns
@@ -23,7 +23,7 @@ source-repository head
   type: git
   location: https://github.com/toddmohney/feature-flipper
 
-executable environment-config
+executable specific-user
   main-is: Main.hs
   hs-source-dirs:
       ./.
@@ -31,6 +31,8 @@ executable environment-config
   ghc-options: -Wall -fwarn-unused-matches -fwarn-unused-binds -fwarn-unused-imports
   build-depends:
       base >=4.8 && <5
+    , bytestring
+    , digest
     , containers
     , data-default
     , feature-flipper

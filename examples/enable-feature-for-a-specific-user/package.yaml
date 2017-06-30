@@ -1,4 +1,4 @@
-name: environment-config
+name: enable-feature-for-a-specific-user
 version: '0.1.0.0'
 synopsis: Examples of feature-flipper usage patterns
 description: Examples of feature-flipper usage patterns
@@ -11,7 +11,7 @@ github: toddmohney/feature-flipper
 extra-source-files:
 - README.md
 executables:
-  environment-config:
+  specific-user:
       main: Main.hs
       source-dirs: .
       ghc-options:
@@ -23,6 +23,8 @@ executables:
       - OverloadedStrings
       dependencies:
       - base >=4.8 && <5
+      - bytestring
+      - digest
       - containers
       - data-default
       - feature-flipper

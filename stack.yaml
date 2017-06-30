@@ -1,6 +1,7 @@
 packages:
 - '.'
 - examples/environment-config
+- examples/enable-feature-for-a-specific-user
 
 resolver: lts-8.14
 
