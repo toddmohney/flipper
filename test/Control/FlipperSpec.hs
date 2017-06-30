@@ -1,8 +1,8 @@
 module Control.FlipperSpec (main, spec) where
 
-import qualified Data.ByteString.Char8 as C8
+import qualified Data.ByteString.Char8           as C8
 import           Data.Default
-import qualified Data.Digest.CRC32 as D
+import qualified Data.Digest.CRC32               as D
 import qualified Data.Map.Strict                 as M
 import           Test.Hspec
 

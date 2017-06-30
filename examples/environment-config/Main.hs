@@ -1,8 +1,8 @@
 module Main where
 
 import           Control.Monad.State
-import qualified Data.Map.Strict                 as Map
 import           Data.Default                    (def)
+import qualified Data.Map.Strict                 as Map
 import           Data.Maybe                      (maybe)
 import qualified System.Environment              as Env
 

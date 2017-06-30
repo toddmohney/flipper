@@ -1,10 +1,10 @@
 module Main where
 
 import           Control.Monad.State
-import qualified Data.ByteString.Char8 as C8
+import qualified Data.ByteString.Char8           as C8
+import           Data.Digest.CRC32               (CRC32)
+import qualified Data.Digest.CRC32               as D
 import qualified Data.Map.Strict                 as Map
-import           Data.Digest.CRC32 (CRC32)
-import qualified Data.Digest.CRC32 as D
 
 import           Control.Flipper
 import           Control.Flipper.Adapters.Memory

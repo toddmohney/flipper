@@ -15,10 +15,10 @@ module Control.Flipper
     ) where
 
 import           Control.Monad         (when)
-import           Data.Default (def)
-import           Data.Digest.CRC32 (CRC32)
-import qualified Data.Digest.CRC32 as D
-import           Data.Monoid ((<>))
+import           Data.Default          (def)
+import           Data.Digest.CRC32     (CRC32)
+import qualified Data.Digest.CRC32     as D
+import           Data.Monoid           ((<>))
 
 import           Control.Flipper.Types
 
@@ -62,7 +62,7 @@ enabled fName = do
     mFeature <- getFeature fName
     case mFeature of
         (Just feature) -> return $ isEnabled feature
-        Nothing -> return False
+        Nothing        -> return False
 
 {- |
 The 'enabledFor' function returns a Bool indicating if the queried feature is
@@ -75,7 +75,7 @@ enabledFor :: (HasFeatureFlags m, CRC32 a)
 enabledFor fName entity = do
     mFeature <- getFeature fName
     case mFeature of
-        Nothing -> return False
+        Nothing        -> return False
         (Just feature) -> return $ isEnabledFor feature entity
 
 {- |

@@ -16,20 +16,20 @@ module Control.Flipper.Types
     , isEnabledFor
     ) where
 
-import           Control.Monad   (void)
+import           Control.Monad        (void)
 import           Control.Monad.Reader
 import           Control.Monad.State
 import           Data.Default
-import           Data.Digest.CRC32 (CRC32)
-import qualified Data.Digest.CRC32 as D
-import qualified Data.List as L
-import           Data.Map.Strict (Map)
-import qualified Data.Map.Strict as Map
+import           Data.Digest.CRC32    (CRC32)
+import qualified Data.Digest.CRC32    as D
+import qualified Data.List            as L
+import           Data.Map.Strict      (Map)
+import qualified Data.Map.Strict      as Map
 import           Data.Monoid
-import           Data.Word (Word32)
-import           Data.String     (IsString (..))
-import           Data.Text       (Text)
-import qualified Data.Text       as T
+import           Data.String          (IsString (..))
+import           Data.Text            (Text)
+import qualified Data.Text            as T
+import           Data.Word            (Word32)
 
 {- |
 The 'HasFeatureFlags' typeclass describes how to access the Features store
@@ -72,7 +72,7 @@ instance (MonadIO m, ModifiesFeatureFlags m) => ModifiesFeatureFlags (StateT s m
 instance (MonadIO m, ModifiesFeatureFlags m) => ModifiesFeatureFlags (ReaderT s m)
 
 data Feature = Feature
-    { isEnabled :: Bool
+    { isEnabled       :: Bool
     , enabledEntities :: [Word32]
     } deriving (Show, Eq)
 
