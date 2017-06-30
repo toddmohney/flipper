@@ -117,5 +117,5 @@ update fName updateFn = do
     void . updateFeatures . Features $ Map.alter updateFn fName features
 
 isEnabledFor :: (HasActorId a) => Feature -> a -> Bool
-isEnabledFor feature entity =
-    isEnabled feature || L.elem (actorId entity) (enabledEntities feature)
+isEnabledFor feature actor =
+    isEnabled feature || L.elem (actorId actor) (enabledEntities feature)

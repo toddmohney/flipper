@@ -33,21 +33,21 @@ spec = do
             it "evaluates the given monad" $ do
                 let feature = Feature { enabledEntities = [], isEnabled = True }
                 let featureState = Features $ M.insert "ADD_ANOTHER_FEATURE" feature mempty
-                store <- execFlipperT featureState (whenEnabledFor "ADD_ANOTHER_FEATURE" myEntity (enable "ANOTHER_FEATURE"))
+                store <- execFlipperT featureState (whenEnabledFor "ADD_ANOTHER_FEATURE" myActor (enable "ANOTHER_FEATURE"))
                 M.lookup "ANOTHER_FEATURE" (unFeatures store) `shouldBe` Just (def { isEnabled = True })
 
-        context "the feature is enabled for the given entity" $
+        context "the feature is enabled for the given actor" $
             it "evaluates the given monad" $ do
-                let feature = Feature { enabledEntities = [actorId myEntity], isEnabled = False }
+                let feature = Feature { enabledEntities = [actorId myActor], isEnabled = False }
                 let featureState = Features $ M.insert "ADD_ANOTHER_FEATURE" feature mempty
-                store <- execFlipperT featureState (whenEnabledFor "ADD_ANOTHER_FEATURE" myEntity (enable "ANOTHER_FEATURE"))
+                store <- execFlipperT featureState (whenEnabledFor "ADD_ANOTHER_FEATURE" myActor (enable "ANOTHER_FEATURE"))
                 M.lookup "ANOTHER_FEATURE" (unFeatures store) `shouldBe` Just (def { isEnabled = True })
 
-        context "the feature is not enabled for the given entity" $
+        context "the feature is not enabled for the given actor" $
             it "does not evaluate the given monad" $ do
                 let feature = Feature { enabledEntities = [], isEnabled = False }
                 let featureState = Features $ M.insert "ADD_ANOTHER_FEATURE" feature mempty
-                store <- execFlipperT featureState (whenEnabledFor "ADD_ANOTHER_FEATURE" myEntity (enable "ANOTHER_FEATURE"))
+                store <- execFlipperT featureState (whenEnabledFor "ADD_ANOTHER_FEATURE" myActor (enable "ANOTHER_FEATURE"))
                 M.lookup "ANOTHER_FEATURE" (unFeatures store) `shouldBe` Nothing
 
     describe "enable" $ do
@@ -68,20 +68,20 @@ spec = do
 
     describe "enableFor" $ do
         describe "with an existing feature" $ do
-            it "enables the feature only for the given entity" $ do
+            it "enables the feature only for the given actor" $ do
                 let feature = Feature { enabledEntities = [], isEnabled = False }
                 let featureState = Features $ M.insert "FEATURE" feature mempty
-                let result1 = evalFlipperT featureState (enableFor "FEATURE" myEntity >> enabledFor "FEATURE" myEntity)
-                let result2 = evalFlipperT featureState (enableFor "FEATURE" myEntity >> enabledFor "FEATURE" myOtherEntity)
+                let result1 = evalFlipperT featureState (enableFor "FEATURE" myActor >> enabledFor "FEATURE" myActor)
+                let result2 = evalFlipperT featureState (enableFor "FEATURE" myActor >> enabledFor "FEATURE" myOtherActor)
 
                 result1 `shouldReturn` True
                 result2 `shouldReturn` False
 
         describe "with a non-existant feature" $ do
-            it "enables the feature only for the given entity" $ do
+            it "enables the feature only for the given actor" $ do
                 let featureState = mempty :: Features
-                let result1 = evalFlipperT featureState (enableFor "FEATURE" myEntity >> enabledFor "FEATURE" myEntity)
-                let result2 = evalFlipperT featureState (enableFor "FEATURE" myEntity >> enabledFor "FEATURE" myOtherEntity)
+                let result1 = evalFlipperT featureState (enableFor "FEATURE" myActor >> enabledFor "FEATURE" myActor)
+                let result2 = evalFlipperT featureState (enableFor "FEATURE" myActor >> enabledFor "FEATURE" myOtherActor)
 
                 result1 `shouldReturn` True
                 result2 `shouldReturn` False
@@ -90,21 +90,21 @@ spec = do
         it "returns True if the feature is enabled globally" $ do
             let feature = Feature { enabledEntities = [], isEnabled = True }
             let featureState = Features $ M.insert "FEATURE" feature mempty
-            let result = evalFlipperT featureState (enabledFor "FEATURE" myEntity)
+            let result = evalFlipperT featureState (enabledFor "FEATURE" myActor)
 
             result `shouldReturn` True
 
-        it "returns True if the feature is enabled for the entity" $ do
-            let feature = Feature { enabledEntities = [actorId myEntity], isEnabled = False }
+        it "returns True if the feature is enabled for the actor" $ do
+            let feature = Feature { enabledEntities = [actorId myActor], isEnabled = False }
             let featureState = Features $ M.insert "FEATURE" feature mempty
-            let result = evalFlipperT featureState (enabledFor "FEATURE" myEntity)
+            let result = evalFlipperT featureState (enabledFor "FEATURE" myActor)
 
             result `shouldReturn` True
 
-        it "returns False if the feature is not enabled for this entity" $ do
+        it "returns False if the feature is not enabled for this actor" $ do
             let feature = Feature { enabledEntities = [], isEnabled = False }
             let featureState = Features $ M.insert "FEATURE" feature mempty
-            let result = evalFlipperT featureState (enabledFor "FEATURE" myEntity)
+            let result = evalFlipperT featureState (enabledFor "FEATURE" myActor)
 
             result `shouldReturn` False
 
@@ -172,15 +172,15 @@ spec = do
             in
                 result `shouldReturn` False
 
-newtype TestEntity = TestEntity
+newtype TestActor = TestActor
     { myId :: Int
     } deriving (Show, Eq)
 
-instance HasActorId TestEntity where
-    actorId entity = ActorId . C8.pack . show $ myId entity
+instance HasActorId TestActor where
+    actorId actor = ActorId . C8.pack . show $ myId actor
 
-myEntity :: TestEntity
-myEntity = TestEntity 1
+myActor :: TestActor
+myActor = TestActor 1
 
-myOtherEntity :: TestEntity
-myOtherEntity = TestEntity 2
+myOtherActor :: TestActor
+myOtherActor = TestActor 2

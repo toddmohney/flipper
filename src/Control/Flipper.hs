@@ -35,15 +35,15 @@ whenEnabled fName f = do
 
 {- |
 The 'whenEnabledFor' function calls the supplied function, 'm ()', when the given
-'FeatureName' is enabled for the given entity.
+'FeatureName' is enabled for the given actor.
 
-When the feature specified by 'FeatureName' is disabled for the given entity,
+When the feature specified by 'FeatureName' is disabled for the given actor,
 'm ()' is not evaluated.
 -}
 whenEnabledFor :: (HasFeatureFlags m, HasActorId a)
                => FeatureName -> a -> m () -> m ()
-whenEnabledFor fName entity f = do
-    featureEnabled <- enabledFor fName entity
+whenEnabledFor fName actor f = do
+    featureEnabled <- enabledFor fName actor
     when featureEnabled f
 
 {- |
@@ -70,11 +70,11 @@ If the queried FeatureName does not exists, 'enabledFor' returns False.
 -}
 enabledFor :: (HasFeatureFlags m, HasActorId a)
            => FeatureName -> a -> m Bool
-enabledFor fName entity = do
+enabledFor fName actor = do
     mFeature <- getFeature fName
     case mFeature of
         Nothing        -> return False
-        (Just feature) -> return $ isEnabledFor feature entity
+        (Just feature) -> return $ isEnabledFor feature actor
 
 {- |
 The 'enable' function activates a feature.
@@ -88,22 +88,22 @@ enable :: ModifiesFeatureFlags m
 enable fName = upsertFeature fName True
 
 {- |
-The 'enableFor' function activates a feature for a single entity.
+The 'enableFor' function activates a feature for a single actor.
 
 If the FeatureName does not exist in the store, it is created and set to active
-only for the given entity.
+only for the given actor.
 -}
 enableFor :: (ModifiesFeatureFlags m, HasActorId a)
           => FeatureName -> a -> m ()
-enableFor fName entity =
+enableFor fName actor =
     update fName enableFor'
     where
         enableFor' :: (Maybe Feature -> Maybe Feature)
         enableFor' (Just feature) = Just $ feature
-            { enabledEntities = enabledEntities feature <> [actorId entity]
+            { enabledEntities = enabledEntities feature <> [actorId actor]
             }
         enableFor' Nothing = Just $ def
-            { enabledEntities = mempty <> [actorId entity]
+            { enabledEntities = mempty <> [actorId actor]
             }
 
 {- |
