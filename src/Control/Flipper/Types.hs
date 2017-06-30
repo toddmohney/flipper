@@ -7,9 +7,11 @@ Module      : Control.Flipper.Types
 Description : Datatype and Typeclass definitions
 -}
 module Control.Flipper.Types
-    ( Feature(..)
+    ( ActorId(..)
+    , Feature(..)
     , Features(..)
     , FeatureName(..)
+    , HasActorId(..)
     , HasFeatureFlags(..)
     , ModifiesFeatureFlags(..)
     , update
@@ -19,9 +21,8 @@ module Control.Flipper.Types
 import           Control.Monad        (void)
 import           Control.Monad.Reader
 import           Control.Monad.State
+import           Data.ByteString (ByteString)
 import           Data.Default
-import           Data.Digest.CRC32    (CRC32)
-import qualified Data.Digest.CRC32    as D
 import qualified Data.List            as L
 import           Data.Map.Strict      (Map)
 import qualified Data.Map.Strict      as Map
@@ -29,7 +30,6 @@ import           Data.Monoid
 import           Data.String          (IsString (..))
 import           Data.Text            (Text)
 import qualified Data.Text            as T
-import           Data.Word            (Word32)
 
 {- |
 The 'HasFeatureFlags' typeclass describes how to access the Features store
@@ -71,9 +71,15 @@ class HasFeatureFlags m => ModifiesFeatureFlags m where
 instance (MonadIO m, ModifiesFeatureFlags m) => ModifiesFeatureFlags (StateT s m)
 instance (MonadIO m, ModifiesFeatureFlags m) => ModifiesFeatureFlags (ReaderT s m)
 
+newtype ActorId = ActorId ByteString
+    deriving (Show, Eq)
+
+class HasActorId a where
+    actorId :: a -> ActorId
+
 data Feature = Feature
     { isEnabled       :: Bool
-    , enabledEntities :: [Word32]
+    , enabledEntities :: [ActorId]
     } deriving (Show, Eq)
 
 instance Default Feature where
@@ -86,7 +92,7 @@ instance Default Feature where
 An abstraction representing the current state of the features store.
 -}
 newtype Features = Features { unFeatures :: Map FeatureName Feature }
-    deriving (Show, Eq)
+    deriving (Show)
 
 instance Monoid Features where
     mempty = Features mempty
@@ -110,6 +116,6 @@ update fName updateFn = do
     features <- unFeatures <$> getFeatures
     void . updateFeatures . Features $ Map.alter updateFn fName features
 
-isEnabledFor :: (CRC32 a) => Feature -> a -> Bool
+isEnabledFor :: (HasActorId a) => Feature -> a -> Bool
 isEnabledFor feature entity =
-    isEnabled feature || L.elem (D.crc32 entity) (enabledEntities feature)
+    isEnabled feature || L.elem (actorId entity) (enabledEntities feature)

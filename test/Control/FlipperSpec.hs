@@ -2,7 +2,6 @@ module Control.FlipperSpec (main, spec) where
 
 import qualified Data.ByteString.Char8           as C8
 import           Data.Default
-import qualified Data.Digest.CRC32               as D
 import qualified Data.Map.Strict                 as M
 import           Test.Hspec
 
@@ -39,7 +38,7 @@ spec = do
 
         context "the feature is enabled for the given entity" $
             it "evaluates the given monad" $ do
-                let feature = Feature { enabledEntities = [D.crc32 myEntity], isEnabled = False }
+                let feature = Feature { enabledEntities = [actorId myEntity], isEnabled = False }
                 let featureState = Features $ M.insert "ADD_ANOTHER_FEATURE" feature mempty
                 store <- execFlipperT featureState (whenEnabledFor "ADD_ANOTHER_FEATURE" myEntity (enable "ANOTHER_FEATURE"))
                 M.lookup "ANOTHER_FEATURE" (unFeatures store) `shouldBe` Just (def { isEnabled = True })
@@ -96,7 +95,7 @@ spec = do
             result `shouldReturn` True
 
         it "returns True if the feature is enabled for the entity" $ do
-            let feature = Feature { enabledEntities = [D.crc32 myEntity], isEnabled = False }
+            let feature = Feature { enabledEntities = [actorId myEntity], isEnabled = False }
             let featureState = Features $ M.insert "FEATURE" feature mempty
             let result = evalFlipperT featureState (enabledFor "FEATURE" myEntity)
 
@@ -177,8 +176,8 @@ newtype TestEntity = TestEntity
     { myId :: Int
     } deriving (Show, Eq)
 
-instance D.CRC32 TestEntity where
-    crc32Update seed testEntity = D.crc32Update seed (C8.pack . show $ myId testEntity)
+instance HasActorId TestEntity where
+    actorId entity = ActorId . C8.pack . show $ myId entity
 
 myEntity :: TestEntity
 myEntity = TestEntity 1

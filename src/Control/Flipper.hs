@@ -16,8 +16,6 @@ module Control.Flipper
 
 import           Control.Monad         (when)
 import           Data.Default          (def)
-import           Data.Digest.CRC32     (CRC32)
-import qualified Data.Digest.CRC32     as D
 import           Data.Monoid           ((<>))
 
 import           Control.Flipper.Types
@@ -42,7 +40,7 @@ The 'whenEnabledFor' function calls the supplied function, 'm ()', when the give
 When the feature specified by 'FeatureName' is disabled for the given entity,
 'm ()' is not evaluated.
 -}
-whenEnabledFor :: (HasFeatureFlags m, CRC32 a)
+whenEnabledFor :: (HasFeatureFlags m, HasActorId a)
                => FeatureName -> a -> m () -> m ()
 whenEnabledFor fName entity f = do
     featureEnabled <- enabledFor fName entity
@@ -70,7 +68,7 @@ active for the given enitty.
 
 If the queried FeatureName does not exists, 'enabledFor' returns False.
 -}
-enabledFor :: (HasFeatureFlags m, CRC32 a)
+enabledFor :: (HasFeatureFlags m, HasActorId a)
            => FeatureName -> a -> m Bool
 enabledFor fName entity = do
     mFeature <- getFeature fName
@@ -95,17 +93,17 @@ The 'enableFor' function activates a feature for a single entity.
 If the FeatureName does not exist in the store, it is created and set to active
 only for the given entity.
 -}
-enableFor :: (ModifiesFeatureFlags m, CRC32 a)
+enableFor :: (ModifiesFeatureFlags m, HasActorId a)
           => FeatureName -> a -> m ()
 enableFor fName entity =
     update fName enableFor'
     where
         enableFor' :: (Maybe Feature -> Maybe Feature)
         enableFor' (Just feature) = Just $ feature
-            { enabledEntities = enabledEntities feature <> [D.crc32 entity]
+            { enabledEntities = enabledEntities feature <> [actorId entity]
             }
         enableFor' Nothing = Just $ def
-            { enabledEntities = mempty <> [D.crc32 entity]
+            { enabledEntities = mempty <> [actorId entity]
             }
 
 {- |

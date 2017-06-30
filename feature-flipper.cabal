@@ -37,6 +37,7 @@ library
       Paths_feature_flipper
   build-depends:
       base >=4.8 && <5
+    , bytestring
     , containers
     , data-default
     , digest
