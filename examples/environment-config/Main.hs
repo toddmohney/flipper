@@ -2,7 +2,7 @@ module Main where
 
 import           Control.Monad.State
 import qualified Data.Map.Strict                 as Map
-import           Data.Default
+import           Data.Default                    (def)
 import           Data.Maybe                      (maybe)
 import qualified System.Environment              as Env
 
@@ -32,6 +32,8 @@ runWithFeatureFlags = do
 loadFeatures :: IO Features
 loadFeatures = do
     -- load feature flags from the environment
+    -- use the default values if the key is not found in ENV
+    --   - features default to their 'disabled' state
     someFeatureEnabled      <- maybe def (mkFeature . read) <$> Env.lookupEnv "SOME_FEATURE"
     someOtherFeatureEnabled <- maybe def (mkFeature . read) <$> Env.lookupEnv "SOME_OTHER_FEATURE"
 

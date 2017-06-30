@@ -1,0 +1,40 @@
+-- This file has been generated from package.yaml by hpack version 0.17.0.
+--
+-- see: https://github.com/sol/hpack
+
+name:           enable-feature-for-a-specific-user
+version:        0.1.0.0
+synopsis:       Examples of feature-flipper usage patterns
+description:    Examples of feature-flipper usage patterns
+category:       Web
+homepage:       https://github.com/toddmohney/feature-flipper#readme
+bug-reports:    https://github.com/toddmohney/feature-flipper/issues
+author:         Todd Mohney
+maintainer:     toddmohney@gmail.com
+copyright:      2017 Todd Mohney
+license:        MIT
+build-type:     Simple
+cabal-version:  >= 1.10
+
+extra-source-files:
+    README.md
+
+source-repository head
+  type: git
+  location: https://github.com/toddmohney/feature-flipper
+
+executable specific-user
+  main-is: Main.hs
+  hs-source-dirs:
+      ./.
+  default-extensions: OverloadedStrings
+  ghc-options: -Wall -fwarn-unused-matches -fwarn-unused-binds -fwarn-unused-imports
+  build-depends:
+      base >=4.8 && <5
+    , bytestring
+    , digest
+    , containers
+    , data-default
+    , feature-flipper
+    , mtl
+  default-language: Haskell2010
