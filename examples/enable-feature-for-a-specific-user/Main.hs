@@ -2,8 +2,6 @@ module Main where
 
 import           Control.Monad.State
 import qualified Data.ByteString.Char8           as C8
-import           Data.Digest.CRC32               (CRC32)
-import qualified Data.Digest.CRC32               as D
 import qualified Data.Map.Strict                 as Map
 
 import           Control.Flipper
@@ -64,12 +62,11 @@ data User = User { myId :: Int }
     deriving (Show)
 
 {-
- - An instance of CRC32 is required here to keep track of the user in the
+ - An instance of HasActorId is required here to keep track of the user in the
  - Feature's list of enabled entities.
  -}
-instance CRC32 User where
-    crc32Update seed user =
-        D.crc32Update seed (C8.pack . show $ myId user)
+instance HasActorId User where
+    actorId user = ActorId . C8.pack . show $ myId user
 
 myUser :: User
 myUser = User 1
