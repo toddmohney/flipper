@@ -7,6 +7,7 @@ module Control.Flipper
     , enabledFor
     , enable
     , enableFor
+    , enableForPercentage
     , disable
     , toggle
     , whenEnabled
@@ -15,8 +16,8 @@ module Control.Flipper
     ) where
 
 import           Control.Monad         (when)
-import           Data.Default          (def)
 import           Data.Monoid           ((<>))
+import qualified Data.Set as S
 
 import           Control.Flipper.Types
 
@@ -50,8 +51,6 @@ whenEnabledFor fName actor f = do
 The 'enabled' function returns a Bool indicating if the queried feature is
 active.
 
-When the queried FeatureName exists, the active state is returned.
-
 When the queried FeatureName does not exists, 'enabled' returns False.
 -}
 enabled :: HasFeatureFlags m
@@ -77,9 +76,7 @@ enabledFor fName actor = do
         (Just feature) -> return $ isEnabledFor feature actor
 
 {- |
-The 'enable' function activates a feature.
-
-When the FeatureName exists in the store, it is set to active.
+The 'enable' function activates a feature globally.
 
 When the FeatureName does not exist, it is created and set to active.
 -}
@@ -95,21 +92,33 @@ only for the given actor.
 -}
 enableFor :: (ModifiesFeatureFlags m, HasActorId a)
           => FeatureName -> a -> m ()
-enableFor fName actor =
-    update fName enableFor'
-    where
-        enableFor' :: (Maybe Feature -> Maybe Feature)
-        enableFor' (Just feature) = Just $ feature
-            { enabledEntities = enabledEntities feature <> [actorId actor]
-            }
-        enableFor' Nothing = Just $ def
-            { enabledEntities = mempty <> [actorId actor]
-            }
+enableFor fName actor = update fName (enableFor' actor fName)
+
+enableFor' :: HasActorId a => a -> FeatureName -> Maybe Feature -> Maybe Feature
+enableFor' actor _ (Just feature) = Just $ feature { enabledEntities = S.insert (actorId actor) (enabledEntities feature) }
+enableFor' actor fname Nothing = Just $ (mkFeature fname) { enabledEntities = S.singleton (actorId actor) }
 
 {- |
-The 'disable' function deactivates a feature.
+The 'enableForPercentage' function activates a feature for a percentage of actors.
 
-When the FeatureName exists in the store, it is set to inactive.
+If the FeatureName does not exist in the store, it is created and set to active
+only for the specified percentage.
+-}
+enableForPercentage :: (ModifiesFeatureFlags m)
+          => FeatureName -> Percentage -> m ()
+enableForPercentage fName pct
+    | pct < 0   = raiseOutOfRangeError
+    | pct > 100 = raiseOutOfRangeError
+    | otherwise = update fName (enableForPercentage' pct fName)
+    where
+        raiseOutOfRangeError = error ("Invalid percentage: " <> show pct <> " Expected a value between 0 - 100")
+
+enableForPercentage' :: Percentage -> FeatureName -> Maybe Feature -> Maybe Feature
+enableForPercentage' pct _ (Just feature) = Just $ feature { enabledPercentage = pct }
+enableForPercentage' pct fname Nothing = Just (mkFeature fname) { enabledPercentage = pct }
+
+{- |
+The 'disable' function deactivates a feature globally.
 
 When the FeatureName does not exist, it is created and set to inactive.
 -}
@@ -118,9 +127,7 @@ disable :: ModifiesFeatureFlags m
 disable fName = upsertFeature fName False
 
 {- |
-The 'toggle' function flips the current state of a feature.
-
-When the FeatureName exists in the store, it flips the feature state.
+The 'toggle' function flips the current state of a feature globally.
 
 When the FeatureName does not exist, it is created and set to True.
 -}
@@ -130,7 +137,7 @@ toggle fName = update fName flipIt'
     where
         flipIt' :: Maybe Feature -> Maybe Feature
         flipIt' (Just feature) = Just (feature { isEnabled = not (isEnabled feature) })
-        flipIt' Nothing  = Just $ def { isEnabled = True }
+        flipIt' Nothing  = Just $ (mkFeature fName) { isEnabled = True }
 
 {- |
 When the FeatureName exists in the store, it is set to the specified `isEnabled` state.
@@ -143,5 +150,5 @@ upsertFeature fName featureEnabled =
     update fName upsertFeature'
     where
         upsertFeature' :: (Maybe Feature -> Maybe Feature)
-        upsertFeature' Nothing        = Just def { isEnabled = featureEnabled }
+        upsertFeature' Nothing        = Just $ (mkFeature fName) { isEnabled = featureEnabled }
         upsertFeature' (Just feature) = Just (feature { isEnabled = featureEnabled })

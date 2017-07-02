@@ -42,21 +42,15 @@ loadFeatures :: IO Features
 loadFeatures =
     -- build flipper feature type
     pure . Features $ Map.fromList
-        [ ("SOME_FEATURE", disabledFeature)
-        , ("SOME_GLOBALLY_ENABLED_FEATURE", enabledFeature)
+        [ (featureName disabledFeature, disabledFeature)
+        , (featureName enabledFeature, enabledFeature)
         ]
     where
         disabledFeature :: Feature
-        disabledFeature = Feature
-            { isEnabled = False
-            , enabledEntities = []
-            }
+        disabledFeature = mkFeature "SOME_FEATURE"
 
         enabledFeature :: Feature
-        enabledFeature = Feature
-            { isEnabled = True
-            , enabledEntities = []
-            }
+        enabledFeature = (mkFeature "SOME_GLOBALLY_ENABLED_FEATURE") { isEnabled = True }
 
 data User = User { myId :: Int }
     deriving (Show)
