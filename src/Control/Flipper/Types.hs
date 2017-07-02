@@ -15,8 +15,10 @@ module Control.Flipper.Types
     , HasActorId(..)
     , HasFeatureFlags(..)
     , ModifiesFeatureFlags(..)
+    , Percentage(..)
     , update
     , isEnabledFor
+    , mkFeature
     ) where
 
 import           Control.Monad        (void)
@@ -24,7 +26,6 @@ import           Control.Monad.Reader
 import           Control.Monad.State
 import           Data.ByteString (ByteString)
 import qualified Data.Digest.CRC32    as D
-import           Data.Default
 import qualified Data.List            as L
 import           Data.Map.Strict      (Map)
 import qualified Data.Map.Strict      as Map
@@ -120,15 +121,22 @@ data Feature = Feature
 
     -- | the percentage of total actors for which to enable the Feature.
     -- | 0 <= enabledPercentage <= 100
-    , enabledPercentage :: Int
+    , enabledPercentage :: Percentage
     } deriving (Show, Eq)
 
-instance Default Feature where
-    def = Feature
-        { isEnabled = False
-        , enabledEntities = []
-        , enabledPercentage = 0
-        }
+mkFeature :: Feature
+mkFeature = Feature
+    { isEnabled = False
+    , enabledEntities = []
+    , enabledPercentage = Percentage 0
+    }
+
+newtype Percentage = Percentage Int
+    deriving (Show, Read, Eq, Ord, Num)
+
+instance Bounded Percentage where
+    minBound = Percentage 0
+    maxBound = Percentage 100
 
 {- |
 An abstraction representing the current state of the features store.
@@ -159,7 +167,7 @@ update fName updateFn = do
     void . updateFeatures . Features $ Map.alter updateFn fName features
 
 isEnabledFor :: (HasActorId a) => Feature -> a -> Bool
-isEnabledFor (Feature globallyEnabled actors pct) actor =
+isEnabledFor (Feature globallyEnabled actors (Percentage pct)) actor =
     globallyEnabled
         || inActivePercentageGroup
         || inActiveActorsGroup
