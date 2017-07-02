@@ -31,21 +31,21 @@ spec = do
     describe "whenEnabledFor" $ do
         context "the feature is enabled globally" $
             it "evaluates the given monad" $ do
-                let feature = Feature { enabledEntities = [], isEnabled = True }
+                let feature = Feature { enabledEntities = [], enabledPercentage = 0, isEnabled = True }
                 let featureState = Features $ M.insert "ADD_ANOTHER_FEATURE" feature mempty
                 store <- execFlipperT featureState (whenEnabledFor "ADD_ANOTHER_FEATURE" myActor (enable "ANOTHER_FEATURE"))
                 M.lookup "ANOTHER_FEATURE" (unFeatures store) `shouldBe` Just (def { isEnabled = True })
 
         context "the feature is enabled for the given actor" $
             it "evaluates the given monad" $ do
-                let feature = Feature { enabledEntities = [actorId myActor], isEnabled = False }
+                let feature = Feature { enabledEntities = [actorId myActor], enabledPercentage = 0, isEnabled = False }
                 let featureState = Features $ M.insert "ADD_ANOTHER_FEATURE" feature mempty
                 store <- execFlipperT featureState (whenEnabledFor "ADD_ANOTHER_FEATURE" myActor (enable "ANOTHER_FEATURE"))
                 M.lookup "ANOTHER_FEATURE" (unFeatures store) `shouldBe` Just (def { isEnabled = True })
 
         context "the feature is not enabled for the given actor" $
             it "does not evaluate the given monad" $ do
-                let feature = Feature { enabledEntities = [], isEnabled = False }
+                let feature = Feature { enabledEntities = [], enabledPercentage = 0, isEnabled = False }
                 let featureState = Features $ M.insert "ADD_ANOTHER_FEATURE" feature mempty
                 store <- execFlipperT featureState (whenEnabledFor "ADD_ANOTHER_FEATURE" myActor (enable "ANOTHER_FEATURE"))
                 M.lookup "ANOTHER_FEATURE" (unFeatures store) `shouldBe` Nothing
@@ -69,7 +69,7 @@ spec = do
     describe "enableFor" $ do
         describe "with an existing feature" $ do
             it "enables the feature only for the given actor" $ do
-                let feature = Feature { enabledEntities = [], isEnabled = False }
+                let feature = Feature { enabledEntities = [], enabledPercentage = 0, isEnabled = False }
                 let featureState = Features $ M.insert "FEATURE" feature mempty
                 let result1 = evalFlipperT featureState (enableFor "FEATURE" myActor >> enabledFor "FEATURE" myActor)
                 let result2 = evalFlipperT featureState (enableFor "FEATURE" myActor >> enabledFor "FEATURE" myOtherActor)
@@ -88,21 +88,21 @@ spec = do
 
     describe "enabledFor" $ do
         it "returns True if the feature is enabled globally" $ do
-            let feature = Feature { enabledEntities = [], isEnabled = True }
+            let feature = Feature { enabledEntities = [], enabledPercentage = 0, isEnabled = True }
             let featureState = Features $ M.insert "FEATURE" feature mempty
             let result = evalFlipperT featureState (enabledFor "FEATURE" myActor)
 
             result `shouldReturn` True
 
         it "returns True if the feature is enabled for the actor" $ do
-            let feature = Feature { enabledEntities = [actorId myActor], isEnabled = False }
+            let feature = Feature { enabledEntities = [actorId myActor], enabledPercentage = 0, isEnabled = False }
             let featureState = Features $ M.insert "FEATURE" feature mempty
             let result = evalFlipperT featureState (enabledFor "FEATURE" myActor)
 
             result `shouldReturn` True
 
         it "returns False if the feature is not enabled for this actor" $ do
-            let feature = Feature { enabledEntities = [], isEnabled = False }
+            let feature = Feature { enabledEntities = [], enabledPercentage = 0, isEnabled = False }
             let featureState = Features $ M.insert "FEATURE" feature mempty
             let result = evalFlipperT featureState (enabledFor "FEATURE" myActor)
 

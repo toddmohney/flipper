@@ -7,6 +7,7 @@ module Control.Flipper
     , enabledFor
     , enable
     , enableFor
+    , enableForPercentage
     , disable
     , toggle
     , whenEnabled
@@ -91,14 +92,30 @@ only for the given actor.
 -}
 enableFor :: (ModifiesFeatureFlags m, HasActorId a)
           => FeatureName -> a -> m ()
-enableFor fName actor =
-    update fName enableFor'
+enableFor fName actor = update fName (enableFor' actor)
+
+enableFor' :: HasActorId a => a -> Maybe Feature -> Maybe Feature
+enableFor' actor (Just feature) = Just $ feature { enabledEntities = enabledEntities feature <> [actorId actor] }
+enableFor' actor Nothing = Just $ def { enabledEntities = mempty <> [actorId actor] }
+
+{- |
+The 'enableForPercentage' function activates a feature for a percentage of actors.
+
+If the FeatureName does not exist in the store, it is created and set to active
+only for the specified percentage.
+-}
+enableForPercentage :: (ModifiesFeatureFlags m)
+          => FeatureName -> Int -> m ()
+enableForPercentage fName percentage
+    | percentage < 0   = raiseOutOfRangeError
+    | percentage > 100 = raiseOutOfRangeError
+    | otherwise        = update fName (enableForPercentage' percentage)
     where
-        enableFor' :: (Maybe Feature -> Maybe Feature)
-        enableFor' (Just feature) = Just $ feature
-            { enabledEntities = enabledEntities feature <> [actorId actor] }
-        enableFor' Nothing = Just $ def
-            { enabledEntities = mempty <> [actorId actor] }
+        raiseOutOfRangeError = error ("Invalid percentage: " <> show percentage <> " Expected a value between 0 - 100")
+
+enableForPercentage' :: Int -> Maybe Feature -> Maybe Feature
+enableForPercentage' percentage (Just feature) = Just $ feature { enabledPercentage = percentage }
+enableForPercentage' percentage Nothing = Just $ def { enabledPercentage = percentage }
 
 {- |
 The 'disable' function deactivates a feature globally.
