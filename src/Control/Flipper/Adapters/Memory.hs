@@ -27,14 +27,14 @@ newtype FlipperT m a = FlipperT { unFlipperT :: StateT Features m a }
 instance (Monad m) => HasFeatureFlags (FlipperT m) where
     getFeatures = get
 
-    getFeature featureName = do
+    getFeature fname = do
         features <- unFeatures <$> getFeatures
-        return (Map.lookup featureName features)
+        return (Map.lookup fname features)
 
 instance (Monad m) => ModifiesFeatureFlags (FlipperT m) where
     updateFeatures = put
 
-    updateFeature featureName feature  = update featureName (\_ -> Just feature)
+    updateFeature fname feature  = update fname (\_ -> Just feature)
 
 {- |
 Evaluates a feature-switched computation, returning the final value and

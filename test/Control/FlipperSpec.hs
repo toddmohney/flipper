@@ -2,6 +2,7 @@ module Control.FlipperSpec (main, spec) where
 
 import qualified Data.ByteString.Char8           as C8
 import qualified Data.Map.Strict                 as M
+import qualified Data.Set as S
 import           Test.Hspec
 
 import           Control.Flipper
@@ -15,37 +16,37 @@ spec = do
     describe "whenEnabled" $ do
         context "the feature is enabled" $
             it "evaluates the given monad" $ do
-                let feature = mkFeature { isEnabled = True }
-                let featureState = Features $ M.insert "ADD_ANOTHER_FEATURE" feature mempty
+                let feature = (mkFeature "ADD_ANOTHER_FEATURE") { isEnabled = True }
+                let featureState = Features $ M.singleton (featureName feature) feature
                 store <- execFlipperT featureState (whenEnabled "ADD_ANOTHER_FEATURE" (enable "ANOTHER_FEATURE"))
-                M.lookup "ANOTHER_FEATURE" (unFeatures store) `shouldBe` Just (mkFeature { isEnabled = True })
+                M.lookup "ANOTHER_FEATURE" (unFeatures store) `shouldBe` Just (mkFeature "ANOTHER_FEATURE") { isEnabled = True }
 
         context "the feature is disabled" $
             it "does not evaluate the given monad" $ do
-                let feature = mkFeature { isEnabled = False }
-                let featureState = Features $ M.insert "ADD_ANOTHER_FEATURE" feature mempty
+                let feature = (mkFeature "ADD_ANOTHER_FEATURE") { isEnabled = False }
+                let featureState = Features $ M.singleton (featureName feature) feature
                 store <- execFlipperT featureState (whenEnabled "ADD_ANOTHER_FEATURE" (enable "ANOTHER_FEATURE"))
                 M.lookup "ANOTHER_FEATURE" (unFeatures store) `shouldBe` Nothing
 
     describe "whenEnabledFor" $ do
         context "the feature is enabled globally" $
             it "evaluates the given monad" $ do
-                let feature = Feature { enabledEntities = [], enabledPercentage = 0, isEnabled = True }
-                let featureState = Features $ M.insert "ADD_ANOTHER_FEATURE" feature mempty
+                let feature = (mkFeature "ADD_ANOTHER_FEATURE") { isEnabled = True }
+                let featureState = Features $ M.singleton (featureName feature) feature
                 store <- execFlipperT featureState (whenEnabledFor "ADD_ANOTHER_FEATURE" myActor (enable "ANOTHER_FEATURE"))
-                M.lookup "ANOTHER_FEATURE" (unFeatures store) `shouldBe` Just (mkFeature { isEnabled = True })
+                M.lookup "ANOTHER_FEATURE" (unFeatures store) `shouldBe` Just (mkFeature "ANOTHER_FEATURE") { isEnabled = True }
 
         context "the feature is enabled for the given actor" $
             it "evaluates the given monad" $ do
-                let feature = Feature { enabledEntities = [actorId myActor], enabledPercentage = 0, isEnabled = False }
-                let featureState = Features $ M.insert "ADD_ANOTHER_FEATURE" feature mempty
+                let feature = (mkFeature "ADD_ANOTHER_FEATURE") { enabledEntities = S.singleton (actorId myActor), isEnabled = False }
+                let featureState = Features $ M.singleton (featureName feature) feature
                 store <- execFlipperT featureState (whenEnabledFor "ADD_ANOTHER_FEATURE" myActor (enable "ANOTHER_FEATURE"))
-                M.lookup "ANOTHER_FEATURE" (unFeatures store) `shouldBe` Just (mkFeature { isEnabled = True })
+                M.lookup "ANOTHER_FEATURE" (unFeatures store) `shouldBe` Just (mkFeature "ANOTHER_FEATURE") { isEnabled = True }
 
         context "the feature is not enabled for the given actor" $
             it "does not evaluate the given monad" $ do
-                let feature = Feature { enabledEntities = [], enabledPercentage = 0, isEnabled = False }
-                let featureState = Features $ M.insert "ADD_ANOTHER_FEATURE" feature mempty
+                let feature = mkFeature "ADD_ANOTHER_FEATURE"
+                let featureState = Features $ M.singleton (featureName feature) feature
                 store <- execFlipperT featureState (whenEnabledFor "ADD_ANOTHER_FEATURE" myActor (enable "ANOTHER_FEATURE"))
                 M.lookup "ANOTHER_FEATURE" (unFeatures store) `shouldBe` Nothing
 
@@ -59,8 +60,8 @@ spec = do
 
         it "enables a existing feature key" $
             let
-                feature = mkFeature { isEnabled = False }
-                featureState = Features $ M.insert "FEATURE" feature mempty
+                feature = (mkFeature "FEATURE") { isEnabled = False }
+                featureState = Features $ M.singleton (featureName feature) feature
                 result = evalFlipperT featureState (enable "FEATURE" >> enabled "FEATURE")
             in
                 result `shouldReturn` True
@@ -68,8 +69,8 @@ spec = do
     describe "enableFor" $ do
         describe "with an existing feature" $ do
             it "enables the feature only for the given actor" $ do
-                let feature = Feature { enabledEntities = [], enabledPercentage = 0, isEnabled = False }
-                let featureState = Features $ M.insert "FEATURE" feature mempty
+                let feature = mkFeature "FEATURE"
+                let featureState = Features $ M.singleton (featureName feature) feature
                 let result1 = evalFlipperT featureState (enableFor "FEATURE" myActor >> enabledFor "FEATURE" myActor)
                 let result2 = evalFlipperT featureState (enableFor "FEATURE" myActor >> enabledFor "FEATURE" myOtherActor)
 
@@ -87,22 +88,22 @@ spec = do
 
     describe "enabledFor" $ do
         it "returns True if the feature is enabled globally" $ do
-            let feature = Feature { enabledEntities = [], enabledPercentage = 0, isEnabled = True }
-            let featureState = Features $ M.insert "FEATURE" feature mempty
+            let feature = (mkFeature "FEATURE") { isEnabled = True }
+            let featureState = Features $ M.singleton (featureName feature) feature
             let result = evalFlipperT featureState (enabledFor "FEATURE" myActor)
 
             result `shouldReturn` True
 
         it "returns True if the feature is enabled for the actor" $ do
-            let feature = Feature { enabledEntities = [actorId myActor], enabledPercentage = 0, isEnabled = False }
-            let featureState = Features $ M.insert "FEATURE" feature mempty
+            let feature = (mkFeature "FEATURE") { enabledEntities = S.singleton (actorId myActor), isEnabled = False }
+            let featureState = Features $ M.singleton (featureName feature) feature
             let result = evalFlipperT featureState (enabledFor "FEATURE" myActor)
 
             result `shouldReturn` True
 
         it "returns False if the feature is not enabled for this actor" $ do
-            let feature = Feature { enabledEntities = [], enabledPercentage = 0, isEnabled = False }
-            let featureState = Features $ M.insert "FEATURE" feature mempty
+            let feature = mkFeature "FEATURE"
+            let featureState = Features $ M.singleton (featureName feature) feature
             let result = evalFlipperT featureState (enabledFor "FEATURE" myActor)
 
             result `shouldReturn` False
@@ -117,8 +118,8 @@ spec = do
 
         it "disables a existing feature key" $
             let
-                feature = mkFeature { isEnabled = True }
-                featureState = Features $ M.insert "FEATURE" feature mempty
+                feature = (mkFeature "FEATURE") { isEnabled = True }
+                featureState = Features $ M.singleton (featureName feature) feature
                 result = evalFlipperT featureState (disable "FEATURE" >> enabled "FEATURE")
             in
                 result `shouldReturn` False
@@ -133,16 +134,16 @@ spec = do
 
         it "enables a disabled feature key" $
             let
-                feature = mkFeature { isEnabled = False }
-                featureState = Features $ M.insert "FEATURE" feature mempty
+                feature = (mkFeature "FEATURE") { isEnabled = False }
+                featureState = Features $ M.singleton (featureName feature) feature
                 result = evalFlipperT featureState (toggle "FEATURE" >> enabled "FEATURE")
             in
                 result `shouldReturn` True
 
         it "disables a enabled feature key" $
             let
-                feature = mkFeature { isEnabled = True }
-                featureState = Features $ M.insert "FEATURE" feature mempty
+                feature = (mkFeature "FEATURE") { isEnabled = True }
+                featureState = Features $ M.singleton (featureName feature) feature
                 result = evalFlipperT featureState (toggle "FEATURE" >> enabled "FEATURE")
             in
                 result `shouldReturn` False
@@ -150,16 +151,16 @@ spec = do
     describe "enabled" $ do
         it "returns True when the feature is enabled" $
             let
-                feature = mkFeature { isEnabled = True }
-                featureState = Features $ M.insert "ENABLED_FEATURE" feature mempty
+                feature = (mkFeature "ENABLED_FEATURE") { isEnabled = True }
+                featureState = Features $ M.singleton (featureName feature) feature
                 result = evalFlipperT featureState (enabled "ENABLED_FEATURE")
             in
                 result `shouldReturn` True
 
         it "returns False when the feature is not enabled" $
             let
-                feature = mkFeature { isEnabled = False }
-                featureState = Features $ M.insert "DISABLED_FEATURE" feature mempty
+                feature = (mkFeature "DISABLED_FEATURE") { isEnabled = False }
+                featureState = Features $ M.singleton (featureName feature) feature
                 result = evalFlipperT featureState (enabled "DISABLED_FEATURE")
             in
                 result `shouldReturn` False

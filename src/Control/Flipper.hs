@@ -17,6 +17,7 @@ module Control.Flipper
 
 import           Control.Monad         (when)
 import           Data.Monoid           ((<>))
+import qualified Data.Set as S
 
 import           Control.Flipper.Types
 
@@ -91,11 +92,11 @@ only for the given actor.
 -}
 enableFor :: (ModifiesFeatureFlags m, HasActorId a)
           => FeatureName -> a -> m ()
-enableFor fName actor = update fName (enableFor' actor)
+enableFor fName actor = update fName (enableFor' actor fName)
 
-enableFor' :: HasActorId a => a -> Maybe Feature -> Maybe Feature
-enableFor' actor (Just feature) = Just $ feature { enabledEntities = enabledEntities feature <> [actorId actor] }
-enableFor' actor Nothing = Just $ mkFeature { enabledEntities = mempty <> [actorId actor] }
+enableFor' :: HasActorId a => a -> FeatureName -> Maybe Feature -> Maybe Feature
+enableFor' actor _ (Just feature) = Just $ feature { enabledEntities = S.insert (actorId actor) (enabledEntities feature) }
+enableFor' actor fname Nothing = Just $ (mkFeature fname) { enabledEntities = S.singleton (actorId actor) }
 
 {- |
 The 'enableForPercentage' function activates a feature for a percentage of actors.
@@ -108,13 +109,13 @@ enableForPercentage :: (ModifiesFeatureFlags m)
 enableForPercentage fName pct
     | pct < 0   = raiseOutOfRangeError
     | pct > 100 = raiseOutOfRangeError
-    | otherwise = update fName (enableForPercentage' pct)
+    | otherwise = update fName (enableForPercentage' pct fName)
     where
         raiseOutOfRangeError = error ("Invalid percentage: " <> show pct <> " Expected a value between 0 - 100")
 
-enableForPercentage' :: Percentage -> Maybe Feature -> Maybe Feature
-enableForPercentage' pct (Just feature) = Just $ feature { enabledPercentage = pct }
-enableForPercentage' pct Nothing = Just mkFeature { enabledPercentage = pct }
+enableForPercentage' :: Percentage -> FeatureName -> Maybe Feature -> Maybe Feature
+enableForPercentage' pct _ (Just feature) = Just $ feature { enabledPercentage = pct }
+enableForPercentage' pct fname Nothing = Just (mkFeature fname) { enabledPercentage = pct }
 
 {- |
 The 'disable' function deactivates a feature globally.
@@ -136,7 +137,7 @@ toggle fName = update fName flipIt'
     where
         flipIt' :: Maybe Feature -> Maybe Feature
         flipIt' (Just feature) = Just (feature { isEnabled = not (isEnabled feature) })
-        flipIt' Nothing  = Just $ mkFeature { isEnabled = True }
+        flipIt' Nothing  = Just $ (mkFeature fName) { isEnabled = True }
 
 {- |
 When the FeatureName exists in the store, it is set to the specified `isEnabled` state.
@@ -149,5 +150,5 @@ upsertFeature fName featureEnabled =
     update fName upsertFeature'
     where
         upsertFeature' :: (Maybe Feature -> Maybe Feature)
-        upsertFeature' Nothing        = Just mkFeature { isEnabled = featureEnabled }
+        upsertFeature' Nothing        = Just $ (mkFeature fName) { isEnabled = featureEnabled }
         upsertFeature' (Just feature) = Just (feature { isEnabled = featureEnabled })
