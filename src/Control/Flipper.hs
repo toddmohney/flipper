@@ -95,8 +95,8 @@ enableFor :: (ModifiesFeatureFlags m, HasActorId a)
 enableFor fName actor = update fName (enableFor' actor fName)
 
 enableFor' :: HasActorId a => a -> FeatureName -> Maybe Feature -> Maybe Feature
-enableFor' actor _ (Just feature) = Just $ feature { enabledEntities = S.insert (actorId actor) (enabledEntities feature) }
-enableFor' actor fname Nothing = Just $ (mkFeature fname) { enabledEntities = S.singleton (actorId actor) }
+enableFor' actor _ (Just feature) = Just $ feature { enabledActors = S.insert (actorId actor) (enabledActors feature) }
+enableFor' actor fname Nothing = Just $ (mkFeature fname) { enabledActors = S.singleton (actorId actor) }
 
 {- |
 The 'enableForPercentage' function activates a feature for a percentage of actors.

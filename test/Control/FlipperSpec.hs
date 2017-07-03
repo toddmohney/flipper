@@ -38,7 +38,7 @@ spec = do
 
         context "the feature is enabled for the given actor" $
             it "evaluates the given monad" $ do
-                let feature = (mkFeature "ADD_ANOTHER_FEATURE") { enabledEntities = S.singleton (actorId myActor), isEnabled = False }
+                let feature = (mkFeature "ADD_ANOTHER_FEATURE") { enabledActors = S.singleton (actorId myActor), isEnabled = False }
                 let featureState = Features $ M.singleton (featureName feature) feature
                 store <- execFlipperT featureState (whenEnabledFor "ADD_ANOTHER_FEATURE" myActor (enable "ANOTHER_FEATURE"))
                 M.lookup "ANOTHER_FEATURE" (unFeatures store) `shouldBe` Just (mkFeature "ANOTHER_FEATURE") { isEnabled = True }
@@ -95,7 +95,7 @@ spec = do
             result `shouldReturn` True
 
         it "returns True if the feature is enabled for the actor" $ do
-            let feature = (mkFeature "FEATURE") { enabledEntities = S.singleton (actorId myActor), isEnabled = False }
+            let feature = (mkFeature "FEATURE") { enabledActors = S.singleton (actorId myActor), isEnabled = False }
             let featureState = Features $ M.singleton (featureName feature) feature
             let result = evalFlipperT featureState (enabledFor "FEATURE" myActor)
 

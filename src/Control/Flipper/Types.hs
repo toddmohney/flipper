@@ -124,7 +124,7 @@ data Feature = Feature
     , isEnabled       :: Bool
 
     -- | a list of ActorIDs for which to enable the Feature.
-    , enabledEntities :: Set ActorId
+    , enabledActors :: Set ActorId
 
     -- | the percentage of total actors for which to enable the Feature.
     -- | 0 <= enabledPercentage <= 100
@@ -138,7 +138,7 @@ mkFeature :: FeatureName -> Feature
 mkFeature fname = Feature
     { featureName = fname
     , isEnabled = False
-    , enabledEntities = S.empty
+    , enabledActors = S.empty
     , enabledPercentage = Percentage 0
     }
 
@@ -181,7 +181,7 @@ mergeFeatures :: Feature -> Feature -> Feature
 mergeFeatures new old = Feature
     { featureName = featureName new
     , isEnabled = isEnabled new
-    , enabledEntities = enabledEntities old <> enabledEntities new
+    , enabledActors = enabledActors old <> enabledActors new
     , enabledPercentage = enabledPercentage new
     }
 

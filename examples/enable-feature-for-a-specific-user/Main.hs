@@ -57,7 +57,7 @@ data User = User { myId :: Int }
 
 {-
  - An instance of HasActorId is required here to keep track of the user in the
- - Feature's list of enabled entities.
+ - Feature's list of enabled actors.
  -}
 instance HasActorId User where
     actorId user = ActorId . C8.pack . show $ myId user
