@@ -10,13 +10,18 @@ license: MIT
 github: toddmohney/flipper
 extra-source-files:
 - README.md
+
+ghc-options:
+- -Wall
+- -Werror
+- -fno-warn-warnings-deprecations
+- -freverse-errors
+- -fwarn-unused-binds
+- -fwarn-unused-imports
+- -fwarn-unused-matches
+
 library:
   source-dirs: src
-  ghc-options:
-  - -Wall
-  - -fwarn-unused-matches
-  - -fwarn-unused-binds
-  - -fwarn-unused-imports
   default-extensions:
   - OverloadedStrings
   exposed-modules:
@@ -31,6 +36,7 @@ library:
   - digest
   - mtl
   - text
+
 tests:
   feature-flipper-test:
     main: Spec.hs
