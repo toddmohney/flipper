@@ -1,5 +1,5 @@
 name: feature-flipper
-version: '0.2.1.1'
+version: '0.2.1.2'
 synopsis: A minimally obtrusive feature flag library
 description: A minimally obtrusive feature flag library
 category: Web
@@ -20,6 +20,14 @@ ghc-options:
 - -fwarn-unused-imports
 - -fwarn-unused-matches
 
+dependencies:
+- base >=4.8 && <5
+- bytestring
+- containers
+- digest
+- mtl
+- text
+
 library:
   source-dirs: src
   default-extensions:
@@ -28,14 +36,6 @@ library:
   - Control.Flipper
   - Control.Flipper.Types
   - Control.Flipper.Adapters.Memory
-  dependencies:
-  - base >=4.8 && <5
-  - bytestring
-  - containers
-  - data-default
-  - digest
-  - mtl
-  - text
 
 tests:
   feature-flipper-test:
@@ -48,13 +48,7 @@ tests:
     default-extensions:
     - OverloadedStrings
     dependencies:
-    - base
-    - bytestring
-    - containers
-    - data-default
-    - digest
     - feature-flipper
     - hspec
-    - mtl
     other-modules:
     - Control.FlipperSpec

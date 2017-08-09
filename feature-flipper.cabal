@@ -3,7 +3,7 @@
 -- see: https://github.com/sol/hpack
 
 name:                feature-flipper
-version:             0.2.1.1
+version:             0.2.1.2
 synopsis:            A minimally obtrusive feature flag library
 description:         A minimally obtrusive feature flag library
 homepage:            https://github.com/toddmohney/flipper#readme
@@ -39,7 +39,6 @@ library
       base >=4.8 && <5
     , bytestring
     , containers
-    , data-default
     , digest
     , mtl
     , text
@@ -52,14 +51,14 @@ test-suite feature-flipper-test
   default-extensions: OverloadedStrings
   main-is: Spec.hs
   build-depends:
-      base
+      base >=4.8 && <5
     , bytestring
     , containers
-    , data-default
     , digest
+    , mtl
+    , text
     , feature-flipper
     , hspec
-    , mtl
   other-modules:
       Control.FlipperSpec
   ghc-options: -Wall -Werror -fno-warn-warnings-deprecations -freverse-errors -fwarn-unused-binds -fwarn-unused-imports -fwarn-unused-matches -threaded -rtsopts -with-rtsopts=-N
