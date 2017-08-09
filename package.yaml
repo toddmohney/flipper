@@ -11,15 +11,6 @@ github: toddmohney/flipper
 extra-source-files:
 - README.md
 
-ghc-options:
-- -Wall
-- -Werror
-- -fno-warn-warnings-deprecations
-- -freverse-errors
-- -fwarn-unused-binds
-- -fwarn-unused-imports
-- -fwarn-unused-matches
-
 dependencies:
 - base >=4.8 && <5
 - bytestring
@@ -36,6 +27,12 @@ library:
   - Control.Flipper
   - Control.Flipper.Types
   - Control.Flipper.Adapters.Memory
+  ghc-options:
+  - -Wall
+  - -freverse-errors
+  - -fwarn-unused-binds
+  - -fwarn-unused-imports
+  - -fwarn-unused-matches
 
 tests:
   feature-flipper-test:
