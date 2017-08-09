@@ -46,12 +46,14 @@ class Monad m => HasFeatureFlags m where
     -- | 'getFeatures' access the Features store within the current monad
     getFeatures :: m Features
 
+    -- | default implementation provided to reduce boilerplate
     default getFeatures :: (MonadTrans t, HasFeatureFlags m1, m ~ t m1) => m Features
     getFeatures = lift getFeatures
 
     -- | 'getFeature' access a single Feature within the current monad
     getFeature :: FeatureName -> m (Maybe Feature)
 
+    -- | default implementation provided to reduce boilerplate
     default getFeature :: (MonadTrans t, HasFeatureFlags m1, m ~ t m1) => FeatureName -> m (Maybe Feature)
     getFeature = lift . getFeature
 
@@ -66,12 +68,14 @@ class HasFeatureFlags m => ModifiesFeatureFlags m where
     -- | 'updateFeatures' modifies the Features store within the current monad
     updateFeatures :: Features -> m ()
 
+    -- | default implementation provided to reduce boilerplate
     default updateFeatures :: (MonadTrans t, ModifiesFeatureFlags m1, m ~ t m1) => Features -> m ()
     updateFeatures = lift . updateFeatures
 
     -- | 'updateFeature' modifies a single Feature within the current monad
     updateFeature :: FeatureName -> Feature -> m ()
 
+    -- | default implementation provided to reduce boilerplate
     default updateFeature :: (MonadTrans t, ModifiesFeatureFlags m1, m ~ t m1) => FeatureName -> Feature -> m ()
     updateFeature fName feature = lift $ updateFeature fName feature
 
